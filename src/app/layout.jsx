@@ -1,8 +1,8 @@
 import "@/styles/globals.css";
 
 export const metadata = {
-  title: "내 프로젝트",
-  description: "바이브코딩으로 만든 웹 애플리케이션",
+  title: "ShortcutKit — 맥 단축키를 손으로 익히세요",
+  description: "맥 단축키를 카드로 학습하고 직접 눌러보며 익히는 앱. 54개 단축키, 6개 카테고리.",
 };
 
 export default function RootLayout({ children }) {

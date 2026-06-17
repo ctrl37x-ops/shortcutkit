@@ -5,6 +5,19 @@ import Link from 'next/link';
 import { SHORTCUTS, CATEGORIES } from '@/lib/shortcuts';
 
 const ROUND_SIZE = 10;
+const WRONG_KEY = 'shortcutkit_wrong';
+
+function getWrongIds() {
+  try { return new Set(JSON.parse(localStorage.getItem(WRONG_KEY) ?? '[]')); }
+  catch { return new Set(); }
+}
+
+function updateWrong(addIds, removeIds) {
+  const current = getWrongIds();
+  addIds.forEach((id) => current.add(id));
+  removeIds.forEach((id) => current.delete(id));
+  localStorage.setItem(WRONG_KEY, JSON.stringify([...current]));
+}
 
 function shuffle(arr) {
   const a = [...arr];
@@ -86,7 +99,9 @@ export default function ShortcutGame() {
   const [answeredCount, setAnsweredCount] = useState(0);
   const [feedback, setFeedback] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('전체');
+  const [quizSize, setQuizSize] = useState(10);
   const [results, setResults] = useState([]);
+  const [wrongIds, setWrongIds] = useState(new Set());
 
   const startGame = useCallback(
     (customShortcuts = null) => {
@@ -98,7 +113,8 @@ export default function ShortcutGame() {
           selectedCategory === '전체'
             ? SHORTCUTS
             : SHORTCUTS.filter((s) => s.category === selectedCategory);
-        round = shuffle(pool).slice(0, ROUND_SIZE);
+        const shuffled = shuffle(pool);
+        round = quizSize === '전체' ? shuffled : shuffled.slice(0, Math.min(quizSize, shuffled.length));
       }
       setShortcuts(round);
       setCurrentIndex(0);
@@ -110,15 +126,16 @@ export default function ShortcutGame() {
       setResults([]);
       setGameStatus('playing');
     },
-    [selectedCategory]
+    [selectedCategory, quizSize]
   );
 
   const handleKeyDown = useCallback(
     (e) => {
-      if (gameStatus !== 'playing' || feedback) return;
+      if (gameStatus !== 'playing') return;
+      // 메타/컨트롤 조합은 기본 동작 항상 차단 (⌘R 리로드 등 방지)
+      if (e.metaKey || e.ctrlKey) e.preventDefault();
+      if (feedback) return;
       if (['Meta', 'Shift', 'Alt', 'Control'].includes(e.key)) return;
-
-      e.preventDefault();
 
       const current = shortcuts[currentIndex];
       if (current.browserBlocked) return;
@@ -159,6 +176,22 @@ export default function ShortcutGame() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [gameStatus, handleKeyDown]);
+
+  // idle로 돌아올 때 오답 목록 갱신
+  useEffect(() => {
+    if (gameStatus === 'idle') {
+      setWrongIds(getWrongIds());
+    }
+  }, [gameStatus]);
+
+  // 결과 화면 진입 시 오답/정답 localStorage 저장
+  useEffect(() => {
+    if (gameStatus !== 'result' || results.length === 0) return;
+    const wrongInRound = results.filter((r) => !r.correct).map((r) => r.shortcut.id);
+    const correctInRound = results.filter((r) => r.correct).map((r) => r.shortcut.id);
+    updateWrong(wrongInRound, correctInRound);
+    setWrongIds(getWrongIds());
+  }, [gameStatus, results]);
 
   const accuracy = answeredCount > 0 ? Math.round((correctCount / answeredCount) * 100) : null;
 
@@ -201,18 +234,49 @@ export default function ShortcutGame() {
               </div>
             </div>
 
-            <button
-              onClick={() => startGame()}
-              className="px-12 py-4 rounded-xl text-lg font-semibold text-white transition-all hover:-translate-y-0.5 active:translate-y-0"
-              style={{
-                background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
-                boxShadow: '0 4px 20px rgba(37,99,235,0.4)',
-              }}
-            >
-              시작하기
-            </button>
+            <div className="w-full">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">문항 수</p>
+              <div className="flex gap-2 justify-center">
+                {[10, 20, '전체'].map((n) => (
+                  <button
+                    key={n}
+                    onClick={() => setQuizSize(n)}
+                    className="px-5 py-2 rounded-full text-sm font-medium transition-all duration-150"
+                    style={
+                      quizSize === n
+                        ? { background: '#2563eb', color: 'white', boxShadow: '0 2px 8px rgba(37,99,235,0.3)' }
+                        : { background: '#efefef', color: '#6b7280' }
+                    }
+                  >
+                    {n === '전체' ? '전체' : `${n}개`}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-            <p className="text-xs text-gray-400">한 라운드 {ROUND_SIZE}개 무작위 · 연속 정답 시 보너스</p>
+            <div className="flex flex-col gap-3 w-full items-center">
+              <button
+                onClick={() => startGame()}
+                className="w-full py-4 rounded-xl text-lg font-semibold text-white transition-all hover:-translate-y-0.5 active:translate-y-0"
+                style={{
+                  background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                  boxShadow: '0 4px 20px rgba(37,99,235,0.4)',
+                }}
+              >
+                시작하기
+              </button>
+              {wrongIds.size > 0 && (
+                <button
+                  onClick={() => startGame(SHORTCUTS.filter((s) => wrongIds.has(s.id)))}
+                  className="w-full py-3 rounded-xl font-semibold text-white transition-all hover:-translate-y-0.5"
+                  style={{ background: 'linear-gradient(135deg, #ef4444, #dc2626)', boxShadow: '0 3px 12px rgba(239,68,68,0.3)' }}
+                >
+                  📝 오답만 연습 ({wrongIds.size}개)
+                </button>
+              )}
+            </div>
+
+            <p className="text-xs text-gray-400">무작위 출제 · 연속 정답 시 보너스</p>
           </div>
         </div>
       </div>

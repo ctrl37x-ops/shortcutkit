@@ -1,40 +1,48 @@
 import Link from 'next/link';
 import { SHORTCUTS, CATEGORIES } from '@/lib/shortcuts';
 
-// 히어로 장식용 단축키 배지
-function HeroKey({ label, style }) {
-  return (
-    <span
-      className="mac-key mac-key-md absolute opacity-25 pointer-events-none select-none"
-      style={style}
-    >
-      {label}
-    </span>
-  );
-}
+const HERO_KEYS = [
+  { label: '⌘C',   top: '14%', left:  '7%',  rotate: '-10deg' },
+  { label: '⌘V',   top: '30%', left:  '4%',  rotate:   '6deg' },
+  { label: '⌘Z',   top: '52%', left:  '6%',  rotate:  '-5deg' },
+  { label: '⌘S',   top: '68%', left: '11%',  rotate:   '7deg' },
+  { label: '⌘⇧Z', top: '14%', right: '7%',  rotate:   '9deg' },
+  { label: '⌘A',   top: '30%', right: '4%',  rotate:  '-5deg' },
+  { label: '⌘F',   top: '52%', right: '6%',  rotate:   '6deg' },
+  { label: '⌘W',   top: '68%', right:'10%',  rotate:  '-7deg' },
+];
 
 export default function HomePage() {
   const categoryCount = CATEGORIES.length - 1;
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      {/* 네비 */}
-      <header className="border-b border-gray-100 px-6 py-4">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <span className="font-bold text-gray-900 tracking-tight">⌨️ ShortcutKit</span>
-          <nav className="flex items-center gap-5 text-sm">
+    <div className="min-h-screen flex flex-col" style={{ background: '#f6f4f0' }}>
+
+      {/* ── 네비 ──────────────────────────────────────────── */}
+      <header
+        className="sticky top-0 z-50 px-6 py-4"
+        style={{
+          background: 'rgba(246,244,240,0.85)',
+          backdropFilter: 'blur(16px)',
+          borderBottom: '1px solid rgba(0,0,0,0.06)',
+        }}
+      >
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <span className="font-bold tracking-tight text-gray-900">⌨️ ShortcutKit</span>
+          <nav className="flex items-center gap-2">
             <Link
               href="/learn"
-              className="text-gray-500 hover:text-gray-900 transition-colors font-medium"
+              className="px-4 py-1.5 rounded-lg text-sm font-medium transition-colors"
+              style={{ color: '#6b6b6b' }}
             >
               학습하기
             </Link>
             <Link
               href="/practice"
-              className="px-4 py-1.5 rounded-lg font-semibold text-white transition-all hover:-translate-y-px"
+              className="px-4 py-1.5 rounded-lg text-sm font-semibold text-white transition-all hover:-translate-y-px"
               style={{
-                background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
-                boxShadow: '0 2px 12px rgba(37,99,235,0.35)',
+                background: '#1a1a1a',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
               }}
             >
               연습하기
@@ -43,66 +51,81 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* 히어로 */}
-      <section className="relative flex-1 flex items-center justify-center px-6 py-24 overflow-hidden">
-        {/* 배경 그라데이션 */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              'radial-gradient(ellipse 70% 60% at 50% -5%, rgba(37,99,235,0.09) 0%, transparent 100%)',
-          }}
-        />
+      {/* ── 히어로 ────────────────────────────────────────── */}
+      <section className="relative flex-1 flex items-center justify-center px-6 py-32 overflow-hidden">
         {/* 떠다니는 키 장식 */}
-        <HeroKey label="⌘C" style={{ top: '18%', left: '10%', transform: 'rotate(-8deg)' }} />
-        <HeroKey label="⌘V" style={{ top: '30%', left: '6%',  transform: 'rotate(5deg)' }} />
-        <HeroKey label="⌘Z" style={{ top: '55%', left: '8%',  transform: 'rotate(-5deg)' }} />
-        <HeroKey label="⌘S" style={{ top: '70%', left: '14%', transform: 'rotate(6deg)' }} />
-        <HeroKey label="⌘⇧Z" style={{ top: '18%', right: '9%',  transform: 'rotate(7deg)' }} />
-        <HeroKey label="⌘A"  style={{ top: '32%', right: '6%',  transform: 'rotate(-4deg)' }} />
-        <HeroKey label="⌘F"  style={{ top: '55%', right: '9%',  transform: 'rotate(5deg)' }} />
-        <HeroKey label="⌘W"  style={{ top: '70%', right: '13%', transform: 'rotate(-6deg)' }} />
+        {HERO_KEYS.map((k, i) => (
+          <span
+            key={i}
+            className="absolute pointer-events-none select-none"
+            style={{
+              top: k.top, left: k.left, right: k.right,
+              transform: `rotate(${k.rotate})`,
+              padding: '5px 11px',
+              borderRadius: 8,
+              background: 'rgba(0,0,0,0.04)',
+              border: '1px solid rgba(0,0,0,0.08)',
+              color: 'rgba(0,0,0,0.2)',
+              fontSize: '0.72rem',
+              fontWeight: 600,
+            }}
+          >
+            {k.label}
+          </span>
+        ))}
 
-        {/* 콘텐츠 */}
         <div className="relative max-w-2xl w-full text-center flex flex-col items-center gap-8">
           {/* 배지 */}
           <span
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
             style={{
-              background: 'rgba(37,99,235,0.08)',
-              color: '#2563eb',
-              border: '1px solid rgba(37,99,235,0.18)',
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              padding: '5px 16px',
+              borderRadius: 999,
+              background: 'rgba(0,0,0,0.06)',
+              border: '1px solid rgba(0,0,0,0.08)',
+              color: '#555',
+              fontSize: '0.72rem',
+              fontWeight: 600,
+              letterSpacing: '0.04em',
             }}
           >
-            <span>✦</span> {SHORTCUTS.length}개 단축키 · {categoryCount}개 카테고리
+            {SHORTCUTS.length}개 단축키 · {categoryCount}개 카테고리
           </span>
 
           {/* 헤드라인 */}
           <h1
-            className="text-6xl font-extrabold leading-tight tracking-tight"
             style={{
-              background: 'linear-gradient(135deg, #0f172a 20%, #2563eb 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
+              fontFamily: 'var(--font-serif)',
+              fontSize: 'clamp(2.8rem, 6.5vw, 4.5rem)',
+              fontWeight: 900,
+              lineHeight: 1.12,
+              letterSpacing: '-0.02em',
+              color: '#111',
             }}
           >
             맥 단축키를<br />손으로 익히세요
           </h1>
 
-          <p className="text-gray-500 text-lg max-w-xs leading-relaxed">
+          <p style={{
+            color: '#888',
+            fontSize: '1rem',
+            lineHeight: 1.8,
+            maxWidth: 280,
+            letterSpacing: '0.01em',
+          }}>
             보고 외우고, 직접 눌러보며<br />자연스럽게 기억에 새겨요
           </p>
 
-          {/* CTA */}
+          {/* CTA 버튼 */}
           <div className="flex gap-3">
             <Link
               href="/learn"
               className="px-7 py-3.5 rounded-xl font-semibold text-base transition-all hover:-translate-y-0.5"
               style={{
-                border: '2px solid #2563eb',
-                color: '#2563eb',
                 background: 'white',
+                border: '1.5px solid rgba(0,0,0,0.1)',
+                color: '#222',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
               }}
             >
               📖 학습하기
@@ -111,8 +134,8 @@ export default function HomePage() {
               href="/practice"
               className="px-7 py-3.5 rounded-xl font-semibold text-base text-white transition-all hover:-translate-y-0.5"
               style={{
-                background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
-                boxShadow: '0 4px 20px rgba(37,99,235,0.38)',
+                background: '#1a1a1a',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
               }}
             >
               ⌨️ 연습하기
@@ -121,62 +144,62 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 기능 카드 */}
-      <section className="px-6 pb-20">
-        <div className="max-w-3xl mx-auto grid sm:grid-cols-2 gap-5">
-          <Link
-            href="/learn"
-            className="group p-7 rounded-2xl border border-gray-100 bg-white transition-all duration-200 hover:-translate-y-1"
-            style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}
-          >
-            <div
-              className="w-11 h-11 rounded-xl flex items-center justify-center text-xl mb-5"
-              style={{ background: 'rgba(37,99,235,0.08)' }}
+      {/* ── 기능 카드 ──────────────────────────────────────── */}
+      <section className="px-6 pb-28">
+        <div className="max-w-3xl mx-auto grid sm:grid-cols-2 gap-4">
+          {[
+            {
+              href: '/learn',
+              icon: '📖',
+              title: '학습하기',
+              desc: '카드를 탭해 단축키를 확인하고, 외운 것을 체크하며 진행도를 관리해요',
+            },
+            {
+              href: '/practice',
+              icon: '⌨️',
+              title: '연습하기',
+              desc: '동작 설명이 나오면 실제로 키를 눌러봐요. 틀린 것만 골라 집중 연습도 할 수 있어요',
+            },
+          ].map((card) => (
+            <Link
+              key={card.href}
+              href={card.href}
+              className="group p-7 rounded-2xl transition-all duration-200 hover:-translate-y-1"
+              style={{
+                background: 'white',
+                border: '1px solid rgba(0,0,0,0.07)',
+                boxShadow: '0 2px 12px rgba(0,0,0,0.05)',
+              }}
             >
-              📖
-            </div>
-            <h3 className="font-bold text-gray-900 text-lg mb-2 group-hover:text-blue-600 transition-colors">
-              학습하기
-            </h3>
-            <p className="text-gray-500 text-sm leading-relaxed">
-              카드를 탭해 단축키를 확인하고, 외운 것을 체크하며 진행도를 관리해요
-            </p>
-          </Link>
-
-          <Link
-            href="/practice"
-            className="group p-7 rounded-2xl border border-gray-100 bg-white transition-all duration-200 hover:-translate-y-1"
-            style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}
-          >
-            <div
-              className="w-11 h-11 rounded-xl flex items-center justify-center text-xl mb-5"
-              style={{ background: 'rgba(37,99,235,0.08)' }}
-            >
-              ⌨️
-            </div>
-            <h3 className="font-bold text-gray-900 text-lg mb-2 group-hover:text-blue-600 transition-colors">
-              연습하기
-            </h3>
-            <p className="text-gray-500 text-sm leading-relaxed">
-              동작 설명이 나오면 실제로 키를 눌러봐요. 틀린 것만 골라 집중 연습도 할 수 있어요
-            </p>
-          </Link>
+              <div
+                className="w-11 h-11 rounded-xl flex items-center justify-center text-xl mb-5"
+                style={{ background: '#f0ede8' }}
+              >
+                {card.icon}
+              </div>
+              <h3
+                className="font-bold text-lg mb-2 text-gray-900 transition-colors group-hover:text-gray-600"
+                style={{ fontFamily: 'var(--font-serif)' }}
+              >
+                {card.title}
+              </h3>
+              <p style={{ color: '#999', fontSize: '0.875rem', lineHeight: 1.65 }}>
+                {card.desc}
+              </p>
+            </Link>
+          ))}
         </div>
       </section>
 
-      {/* 하단 스탯 */}
-      <div className="border-t border-gray-100 py-8">
-        <div className="max-w-xs mx-auto flex items-center justify-around text-center">
-          {[
-            { value: SHORTCUTS.length, label: '단축키' },
-            { value: categoryCount, label: '카테고리' },
-            { value: '무료', label: '이용료' },
-          ].map((s) => (
-            <div key={s.label}>
-              <div className="text-2xl font-bold text-gray-900">{s.value}</div>
-              <div className="text-xs text-gray-400 mt-0.5">{s.label}</div>
-            </div>
-          ))}
+      {/* ── 푸터 ──────────────────────────────────────────── */}
+      <div style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }} className="py-8">
+        <div className="text-center flex flex-col items-center gap-1">
+          <p style={{ color: '#bbb', fontSize: '0.72rem', fontStyle: 'italic' }}>
+            온 세상에, 늘 푸른 나무처럼
+          </p>
+          <p style={{ color: '#bbb', fontSize: '0.72rem' }}>
+            made by <span style={{ fontWeight: 600, color: '#999' }}>온늘</span>
+          </p>
         </div>
       </div>
     </div>

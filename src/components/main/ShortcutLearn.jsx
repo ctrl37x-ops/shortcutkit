@@ -5,6 +5,21 @@ import Link from 'next/link';
 import { SHORTCUTS, CATEGORIES } from '@/lib/shortcuts';
 
 const REPS = 3;
+const WRONG_KEY = 'shortcutkit_wrong';
+
+// ── 오답 노트 유틸 ───────────────────────────────────────────────────────
+
+function getWrongIds() {
+  try { return new Set(JSON.parse(localStorage.getItem(WRONG_KEY) ?? '[]')); }
+  catch { return new Set(); }
+}
+
+function updateWrong(addIds, removeIds) {
+  const current = getWrongIds();
+  addIds.forEach((id) => current.add(id));
+  removeIds.forEach((id) => current.delete(id));
+  localStorage.setItem(WRONG_KEY, JSON.stringify([...current]));
+}
 
 // ── 공통 유틸 ────────────────────────────────────────────────────────────
 
@@ -205,6 +220,15 @@ function MacKeyboard({ shortcut }) {
   );
 }
 
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 // ── 카테고리 메타데이터 ─────────────────────────────────────────────────
 
 const CATEGORY_META = {
@@ -219,7 +243,15 @@ const CATEGORY_META = {
 // ── 홈 화면 ──────────────────────────────────────────────────────────────
 
 function LearnHome({ onStart }) {
+  const [wrongIds, setWrongIds] = useState(new Set());
   const nonAll = CATEGORIES.filter((c) => c !== '전체');
+
+  useEffect(() => {
+    setWrongIds(getWrongIds());
+  }, []);
+
+  const wrongShortcuts = SHORTCUTS.filter((s) => wrongIds.has(s.id));
+
   return (
     <div className="min-h-screen" style={{ background: '#fafafa' }}>
       <header className="sticky top-0 z-10 border-b px-6 py-3"
@@ -245,7 +277,8 @@ function LearnHome({ onStart }) {
           </p>
         </div>
 
-        <div className="mb-6">
+        {/* 전체 + 랜덤 학습 */}
+        <div className="mb-6 flex flex-col gap-2.5">
           <button onClick={() => onStart(SHORTCUTS, '전체')}
             className="w-full p-5 rounded-2xl text-left transition-all hover:-translate-y-0.5 flex items-center justify-between group"
             style={{ background: 'linear-gradient(135deg, rgba(37,99,235,0.07), rgba(79,70,229,0.04))', border: '1.5px solid rgba(37,99,235,0.18)', boxShadow: '0 2px 16px rgba(37,99,235,0.08)' }}>
@@ -255,6 +288,38 @@ function LearnHome({ onStart }) {
             </div>
             <span className="text-blue-400 text-xl group-hover:translate-x-1 transition-transform">→</span>
           </button>
+
+          {/* 오답 노트 */}
+          {wrongShortcuts.length > 0 && (
+            <button
+              onClick={() => onStart(shuffle(wrongShortcuts), `오답 노트 (${wrongShortcuts.length}개)`)}
+              className="w-full p-5 rounded-2xl text-left transition-all hover:-translate-y-0.5 flex items-center justify-between group"
+              style={{ background: 'linear-gradient(135deg, rgba(239,68,68,0.07), rgba(220,38,38,0.04))', border: '1.5px solid rgba(239,68,68,0.2)', boxShadow: '0 2px 16px rgba(239,68,68,0.06)' }}>
+              <div>
+                <div className="font-bold text-gray-900 text-lg">📝 오답 노트</div>
+                <div className="text-sm text-gray-500 mt-0.5">이전에 틀린 {wrongShortcuts.length}개 단축키 집중 연습</div>
+              </div>
+              <span className="text-red-300 text-xl group-hover:translate-x-1 transition-transform">→</span>
+            </button>
+          )}
+
+          {/* 랜덤 학습 */}
+          <div className="grid grid-cols-3 gap-2">
+            {[10, 20, 30].map((n) => (
+              <button
+                key={n}
+                onClick={() => onStart(shuffle(SHORTCUTS).slice(0, n), `랜덤 ${n}개`)}
+                className="py-4 rounded-xl flex flex-col items-center gap-1 transition-all hover:-translate-y-0.5"
+                style={{ background: 'white', border: '1.5px solid #ebebeb', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#bfdbfe'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(37,99,235,0.08)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#ebebeb'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}
+              >
+                <span className="text-xl">🎲</span>
+                <span className="text-sm font-bold text-gray-900">{n}개</span>
+                <span className="text-xs text-gray-400">랜덤</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">카테고리별 학습</p>
@@ -330,10 +395,11 @@ function LearnSession({ shortcuts, category, onComplete, onExit }) {
   }, [currentIndex, shortcuts, onComplete]);
 
   const handleKeyDown = useCallback((e) => {
+    // 메타/컨트롤 조합은 기본 동작 항상 차단 (⌘R 리로드 등 방지)
+    if (e.metaKey || e.ctrlKey) e.preventDefault();
     if (feedback) return;
     if (current.browserBlocked) return;
     if (['Meta', 'Shift', 'Alt', 'Control'].includes(e.key)) return;
-    e.preventDefault();
 
     const correct = matchKeys(e, current.keys);
     const pressedDisplay = formatPressedKeys(e);
@@ -365,7 +431,11 @@ function LearnSession({ shortcuts, category, onComplete, onExit }) {
     <div className="min-h-screen flex flex-col select-none" style={{ background: '#fafafa' }}>
       <header className="border-b px-6 py-3 flex items-center justify-between shrink-0"
         style={{ borderColor: '#ebebeb', background: 'white' }}>
-        <button onClick={onExit} className="text-sm text-gray-400 hover:text-gray-700 transition-colors">← 나가기</button>
+        <div className="flex items-center gap-3">
+          <Link href="/" className="font-bold text-gray-900 text-sm">⌨️ ShortcutKit</Link>
+          <span className="text-gray-200 select-none">|</span>
+          <button onClick={onExit} className="text-sm text-gray-400 hover:text-gray-700 transition-colors">← 나가기</button>
+        </div>
         <span className="text-sm font-semibold text-gray-700">{category}</span>
         <span className="text-xs text-gray-400 font-medium tabular-nums">{currentIndex + 1} / {shortcuts.length}</span>
       </header>
@@ -443,6 +513,13 @@ function LearnResult({ category, results, onRetry, onHome }) {
   const mistakes = results.filter((r) => r.errors > 0).sort((a, b) => b.errors - a.errors);
   const totalErrors = results.reduce((s, r) => s + r.errors, 0);
 
+  useEffect(() => {
+    updateWrong(
+      mistakes.map((r) => r.shortcut.id),
+      perfect.map((r) => r.shortcut.id),
+    );
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const grade =
     mistakes.length === 0 ? { emoji: '🏆', text: '완벽해요!' } :
     mistakes.length <= results.length * 0.2 ? { emoji: '👍', text: '잘했어요!' } :
@@ -453,7 +530,11 @@ function LearnResult({ category, results, onRetry, onHome }) {
     <div className="min-h-screen flex flex-col" style={{ background: '#fafafa' }}>
       <header className="border-b px-6 py-3 flex items-center justify-between"
         style={{ borderColor: '#ebebeb', background: 'white' }}>
-        <button onClick={onHome} className="text-sm text-gray-400 hover:text-gray-700 transition-colors">← 학습 홈</button>
+        <div className="flex items-center gap-3">
+          <Link href="/" className="font-bold text-gray-900 text-sm">⌨️ ShortcutKit</Link>
+          <span className="text-gray-200 select-none">|</span>
+          <button onClick={onHome} className="text-sm text-gray-400 hover:text-gray-700 transition-colors">← 학습 홈</button>
+        </div>
         <span className="text-sm font-semibold text-gray-700">{category} 완료</span>
         <div />
       </header>
