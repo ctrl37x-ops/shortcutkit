@@ -331,6 +331,7 @@ function LearnSession({ shortcuts, category, onComplete, onExit }) {
 
   const handleKeyDown = useCallback((e) => {
     if (feedback) return;
+    if (current.browserBlocked) return;
     if (['Meta', 'Shift', 'Alt', 'Control'].includes(e.key)) return;
     e.preventDefault();
 
@@ -398,12 +399,14 @@ function LearnSession({ shortcuts, category, onComplete, onExit }) {
             </div>
           )}
 
-          {/* 반복 점 */}
-          <RepDots filled={reps} />
+          {/* 반복 점 (browserBlocked는 점 없음) */}
+          {!current.browserBlocked && <RepDots filled={reps} />}
 
-          {/* 피드백 */}
+          {/* 상태 메시지 */}
           <div className="h-7 flex items-center justify-center">
-            {isDone ? (
+            {current.browserBlocked ? (
+              <p className="text-amber-500 text-xs font-medium">⚠️ 브라우저에서 직접 입력할 수 없는 단축키예요</p>
+            ) : isDone ? (
               <p className="text-green-600 font-bold text-sm">✓ 완료! 다음으로 이동 중…</p>
             ) : feedback?.type === 'correct' ? (
               <p className="text-green-500 font-semibold text-sm">✓ 정확해요! ({reps}/{REPS})</p>
@@ -416,6 +419,16 @@ function LearnSession({ shortcuts, category, onComplete, onExit }) {
               </div>
             )}
           </div>
+
+          {/* 건너뛰기 버튼 (모든 단축키, isDone 제외) */}
+          {!isDone && (
+            <button
+              onClick={goNext}
+              className="text-xs text-gray-300 hover:text-gray-500 transition-colors py-1 px-3"
+            >
+              건너뛰기 →
+            </button>
+          )}
 
         </div>
       </main>

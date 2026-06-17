@@ -121,6 +121,7 @@ export default function ShortcutGame() {
       e.preventDefault();
 
       const current = shortcuts[currentIndex];
+      if (current.browserBlocked) return;
       const isCorrect = matchKeys(e, current.keys);
       const pressedDisplay = formatPressedKeys(e);
       const nextIndex = currentIndex + 1;
@@ -403,6 +404,30 @@ export default function ShortcutGame() {
             <div className="text-7xl mb-4">{current.emoji}</div>
             <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight">{current.description}</h2>
           </div>
+
+          {/* browserBlocked: 스킵 버튼 */}
+          {current.browserBlocked && !feedback && (
+            <div className="flex flex-col items-center gap-2">
+              <p className="text-xs text-amber-500 font-medium">
+                ⚠️ 이 단축키는 macOS가 직접 처리해 브라우저에서 입력할 수 없어요
+              </p>
+              <button
+                onClick={() => {
+                  const nextIndex = currentIndex + 1;
+                  const isLast = nextIndex >= shortcuts.length;
+                  setResults((prev) => [...prev, { shortcut: current, correct: true, pressedDisplay: '(건너뜀)' }]);
+                  setAnsweredCount((prev) => prev + 1);
+                  setCorrectCount((prev) => prev + 1);
+                  if (isLast) setGameStatus('result');
+                  else setCurrentIndex(nextIndex);
+                }}
+                className="px-6 py-2 rounded-xl font-semibold text-white text-sm transition-all hover:-translate-y-0.5"
+                style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', boxShadow: '0 2px 8px rgba(245,158,11,0.3)' }}
+              >
+                건너뛰기 →
+              </button>
+            </div>
+          )}
 
           {/* 피드백 */}
           <div className="h-28 flex flex-col items-center justify-center w-full gap-3">

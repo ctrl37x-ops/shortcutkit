@@ -17,7 +17,7 @@ export const SHORTCUTS = [
   { id: 10, description: "환경설정 열기",      category: "기본 조작", emoji: "⚙️", keys: { meta: true,  shift: false, alt: false, ctrl: false, key: "," },          display: "⌘,"   },
   { id: 29, description: "다른 이름으로 저장", category: "기본 조작", emoji: "💿", keys: { meta: true,  shift: true,  alt: false, ctrl: false, key: "s" },          display: "⌘⇧S"  },
   { id: 31, description: "파일 열기",          category: "기본 조작", emoji: "📂", keys: { meta: true,  shift: false, alt: false, ctrl: false, key: "o" },          display: "⌘O"   },
-  { id: 32, description: "같은 앱 다음 창",    category: "기본 조작", emoji: "🔀", keys: { meta: true,  shift: false, alt: false, ctrl: false, key: "`" },          display: "⌘`"   },
+  { id: 32, description: "같은 앱 다음 창",    category: "기본 조작", emoji: "🔀", keys: { meta: true,  shift: false, alt: false, ctrl: false, key: "`" },          display: "⌘`",   browserBlocked: true },
 
   // ── 창/앱 관리 ─────────────────────────────────────────────────────────
   { id: 11, description: "새 탭 열기",         category: "창/앱 관리", emoji: "📑", keys: { meta: true,  shift: false, alt: false, ctrl: false, key: "t" },         display: "⌘T"   },
