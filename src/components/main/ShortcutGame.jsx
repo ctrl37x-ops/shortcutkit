@@ -50,10 +50,10 @@ const KEY_LABEL = {
 
 function formatPressedKeys(event) {
   const parts = [];
+  if (event.metaKey) parts.push('⌘');
   if (event.ctrlKey) parts.push('⌃');
   if (event.altKey) parts.push('⌥');
   if (event.shiftKey) parts.push('⇧');
-  if (event.metaKey) parts.push('⌘');
   const k = normalizeKey(event.key);
   const key = KEY_LABEL[k] ?? (k.length === 1 ? k.toUpperCase() : k);
   parts.push(key);
@@ -254,27 +254,32 @@ export default function ShortcutGame() {
               </div>
             </div>
 
-            <div className="flex flex-col gap-3 w-full items-center">
-              <button
-                onClick={() => startGame()}
-                className="w-full py-4 rounded-xl text-lg font-semibold text-white transition-all hover:-translate-y-0.5 active:translate-y-0"
-                style={{
-                  background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
-                  boxShadow: '0 4px 20px rgba(37,99,235,0.4)',
-                }}
-              >
-                시작하기
-              </button>
-              {wrongIds.size > 0 && (
-                <button
-                  onClick={() => startGame(SHORTCUTS.filter((s) => wrongIds.has(s.id)))}
-                  className="w-full py-3 rounded-xl font-semibold text-white transition-all hover:-translate-y-0.5"
-                  style={{ background: 'linear-gradient(135deg, #ef4444, #dc2626)', boxShadow: '0 3px 12px rgba(239,68,68,0.3)' }}
-                >
-                  📝 오답만 연습 ({wrongIds.size}개)
-                </button>
-              )}
-            </div>
+            {(() => {
+              const wrongShortcuts = SHORTCUTS.filter((s) => wrongIds.has(s.id));
+              return (
+                <div className="flex flex-col gap-3 w-full items-center">
+                  <button
+                    onClick={() => startGame()}
+                    className="w-full py-4 rounded-xl text-lg font-semibold text-white transition-all hover:-translate-y-0.5 active:translate-y-0"
+                    style={{
+                      background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                      boxShadow: '0 4px 20px rgba(37,99,235,0.4)',
+                    }}
+                  >
+                    시작하기
+                  </button>
+                  {wrongShortcuts.length > 0 && (
+                    <button
+                      onClick={() => startGame(wrongShortcuts)}
+                      className="w-full py-3 rounded-xl font-semibold text-white transition-all hover:-translate-y-0.5"
+                      style={{ background: 'linear-gradient(135deg, #ef4444, #dc2626)', boxShadow: '0 3px 12px rgba(239,68,68,0.3)' }}
+                    >
+                      📝 오답만 연습 ({wrongShortcuts.length}개)
+                    </button>
+                  )}
+                </div>
+              );
+            })()}
 
             <p className="text-xs text-gray-400">무작위 출제 · 연속 정답 시 보너스</p>
           </div>

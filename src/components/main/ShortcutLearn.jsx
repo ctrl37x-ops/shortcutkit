@@ -74,10 +74,10 @@ const KEY_LABEL = {
 
 function formatPressedKeys(event) {
   const parts = [];
+  if (event.metaKey) parts.push('⌘');
   if (event.ctrlKey) parts.push('⌃');
   if (event.altKey) parts.push('⌥');
   if (event.shiftKey) parts.push('⇧');
-  if (event.metaKey) parts.push('⌘');
   const k = normalizeKey(event.key);
   const key = KEY_LABEL[k] ?? (k.length === 1 ? k.toUpperCase() : k);
   parts.push(key);

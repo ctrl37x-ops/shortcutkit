@@ -67,7 +67,7 @@ export const SHORTCUTS = [
   { id: 44, description: "줄 앞까지 삭제",         category: "커서/선택", emoji: "🧹", keys: { meta: true,  shift: false, alt: false, ctrl: false, key: "backspace"  }, display: "⌘⌫"   },
 
   // ── Finder ─────────────────────────────────────────────────────────────
-  { id: 26, description: "새 폴더 만들기",          category: "Finder", emoji: "📁", keys: { meta: true, shift: true,  alt: false, ctrl: false, key: "n" }, display: "⌘⇧N"  },
+  { id: 26, description: "새 폴더 만들기",          category: "Finder", emoji: "📁", keys: { meta: true, shift: true,  alt: false, ctrl: false, key: "n" }, display: "⌘⇧N", browserBlocked: true },
   { id: 27, description: "항목 복제",              category: "Finder", emoji: "🗂️", keys: { meta: true, shift: false, alt: false, ctrl: false, key: "d" }, display: "⌘D"   },
   // ⌘⇧. → Shift+Period → e.key === ">" (버그 수정)
   { id: 28, description: "숨김 파일 보기/숨기기",  category: "Finder", emoji: "👁️", keys: { meta: true, shift: true,  alt: false, ctrl: false, key: ">" }, display: "⌘⇧."  },
