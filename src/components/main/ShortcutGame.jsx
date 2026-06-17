@@ -99,7 +99,7 @@ export default function ShortcutGame() {
   const [answeredCount, setAnsweredCount] = useState(0);
   const [feedback, setFeedback] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('전체');
-  const [quizSize, setQuizSize] = useState(10);
+  const [quizSize, setQuizSize] = useState(ROUND_SIZE);
   const [results, setResults] = useState([]);
   const [wrongIds, setWrongIds] = useState(new Set());
 
@@ -217,20 +217,26 @@ export default function ShortcutGame() {
             <div className="w-full">
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">카테고리</p>
               <div className="flex flex-wrap gap-2 justify-center">
-                {CATEGORIES.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(cat)}
-                    className="px-4 py-2 rounded-full text-sm font-medium transition-all duration-150"
-                    style={
-                      selectedCategory === cat
-                        ? { background: '#2563eb', color: 'white', boxShadow: '0 2px 8px rgba(37,99,235,0.3)' }
-                        : { background: '#efefef', color: '#6b7280' }
-                    }
-                  >
-                    {cat}
-                  </button>
-                ))}
+                {CATEGORIES.map((cat) => {
+                  const pool = cat === '전체' ? SHORTCUTS : SHORTCUTS.filter((s) => s.category === cat);
+                  const interactive = pool.filter((s) => !s.browserBlocked).length;
+                  const allBlocked = cat !== '전체' && interactive === 0;
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => setSelectedCategory(cat)}
+                      className="px-4 py-2 rounded-full text-sm font-medium transition-all duration-150"
+                      title={allBlocked ? '이 카테고리는 브라우저에서 입력할 수 없는 단축키만 포함되어 있어요' : undefined}
+                      style={
+                        selectedCategory === cat
+                          ? { background: allBlocked ? '#f59e0b' : '#2563eb', color: 'white', boxShadow: allBlocked ? '0 2px 8px rgba(245,158,11,0.3)' : '0 2px 8px rgba(37,99,235,0.3)' }
+                          : { background: '#efefef', color: allBlocked ? '#d97706' : '#6b7280' }
+                      }
+                    >
+                      {cat}{allBlocked ? ' ⚠️' : ''}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 

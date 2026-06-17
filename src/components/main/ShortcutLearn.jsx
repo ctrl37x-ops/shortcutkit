@@ -326,23 +326,32 @@ function LearnHome({ onStart }) {
         <div className="flex flex-col gap-2.5">
           {nonAll.map((cat) => {
             const items = SHORTCUTS.filter((s) => s.category === cat);
+            const interactive = items.filter((s) => !s.browserBlocked).length;
+            const allBlocked = interactive === 0;
             const meta = CATEGORY_META[cat] ?? { emoji: '📌', desc: '' };
             return (
               <button key={cat} onClick={() => onStart(items, cat)}
                 className="w-full p-4 rounded-xl text-left transition-all duration-150 flex items-center justify-between group"
                 style={{ background: 'white', border: '1.5px solid #ebebeb', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#bfdbfe'; e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(37,99,235,0.08)'; }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = allBlocked ? '#fde68a' : '#bfdbfe'; e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = allBlocked ? '0 4px 16px rgba(245,158,11,0.08)' : '0 4px 16px rgba(37,99,235,0.08)'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#ebebeb'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}>
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0" style={{ background: 'rgba(37,99,235,0.07)' }}>
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0"
+                    style={{ background: allBlocked ? 'rgba(245,158,11,0.08)' : 'rgba(37,99,235,0.07)' }}>
                     {meta.emoji}
                   </div>
                   <div>
                     <div className="font-semibold text-gray-900">{cat}</div>
-                    <div className="text-xs text-gray-400 mt-0.5">{meta.desc} · {items.length}개</div>
+                    <div className="text-xs text-gray-400 mt-0.5">
+                      {meta.desc} · {items.length}개
+                      {allBlocked && <span style={{ color: '#f59e0b' }}> · 브라우저에서 입력 불가</span>}
+                      {!allBlocked && interactive < items.length && (
+                        <span style={{ color: '#9ca3af' }}> ({interactive}개 연습 가능)</span>
+                      )}
+                    </div>
                   </div>
                 </div>
-                <span className="text-gray-300 group-hover:text-blue-400 text-lg transition-colors">→</span>
+                <span className={`text-lg transition-colors ${allBlocked ? 'text-amber-300 group-hover:text-amber-400' : 'text-gray-300 group-hover:text-blue-400'}`}>→</span>
               </button>
             );
           })}
