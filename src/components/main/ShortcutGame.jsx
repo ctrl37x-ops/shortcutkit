@@ -15,13 +15,18 @@ function shuffle(arr) {
   return a;
 }
 
+// 한국어 키보드에서 ₩ → ` 정규화
+function normalizeKey(key) {
+  return key === '₩' ? '`' : key;
+}
+
 function matchKeys(event, expected) {
   return (
     event.metaKey === expected.meta &&
     event.shiftKey === expected.shift &&
     event.altKey === expected.alt &&
     event.ctrlKey === expected.ctrl &&
-    event.key.toLowerCase() === expected.key.toLowerCase()
+    normalizeKey(event.key).toLowerCase() === expected.key.toLowerCase()
   );
 }
 
@@ -36,7 +41,8 @@ function formatPressedKeys(event) {
   if (event.altKey) parts.push('⌥');
   if (event.shiftKey) parts.push('⇧');
   if (event.metaKey) parts.push('⌘');
-  const key = KEY_LABEL[event.key] ?? (event.key.length === 1 ? event.key.toUpperCase() : event.key);
+  const k = normalizeKey(event.key);
+  const key = KEY_LABEL[k] ?? (k.length === 1 ? k.toUpperCase() : k);
   parts.push(key);
   return parts.join('');
 }
