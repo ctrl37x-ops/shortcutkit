@@ -23,10 +23,10 @@ export const SHORTCUTS = [
   { id: 11, description: "새 탭 열기",         category: "창/앱 관리", emoji: "📑", keys: { meta: true,  shift: false, alt: false, ctrl: false, key: "t" },         display: "⌘T",  browserBlocked: true },
   { id: 12, description: "탭 / 창 닫기",       category: "창/앱 관리", emoji: "❌", keys: { meta: true,  shift: false, alt: false, ctrl: false, key: "w" },         display: "⌘W",  browserBlocked: true },
   { id: 13, description: "새 창 열기",         category: "창/앱 관리", emoji: "🪟", keys: { meta: true,  shift: false, alt: false, ctrl: false, key: "n" },         display: "⌘N",  browserBlocked: true },
-  // ⌘} = Cmd+Shift+] → e.key === "}", e.shiftKey === true (버그 수정)
-  { id: 14, description: "다음 탭으로 이동",   category: "창/앱 관리", emoji: "▶️", keys: { meta: true,  shift: true,  alt: false, ctrl: false, key: "}" },         display: "⌘}"   },
-  // ⌘{ = Cmd+Shift+[ → e.key === "{", e.shiftKey === true (버그 수정)
-  { id: 15, description: "이전 탭으로 이동",   category: "창/앱 관리", emoji: "◀️", keys: { meta: true,  shift: true,  alt: false, ctrl: false, key: "{" },         display: "⌘{"   },
+  // ⌘} = Cmd+Shift+] → Chrome이 탭 전환을 처리해 keydown이 발생하지 않음
+  { id: 14, description: "다음 탭으로 이동",   category: "창/앱 관리", emoji: "▶️", keys: { meta: true,  shift: true,  alt: false, ctrl: false, key: "}" },         display: "⌘}",  browserBlocked: true },
+  // ⌘{ = Cmd+Shift+[ → 동일하게 Chrome이 가로챔
+  { id: 15, description: "이전 탭으로 이동",   category: "창/앱 관리", emoji: "◀️", keys: { meta: true,  shift: true,  alt: false, ctrl: false, key: "{" },         display: "⌘{",  browserBlocked: true },
   { id: 30, description: "닫힌 탭 다시 열기",  category: "창/앱 관리", emoji: "🔓", keys: { meta: true,  shift: true,  alt: false, ctrl: false, key: "t" },         display: "⌘⇧T", browserBlocked: true },
 
   // ── 브라우저 ───────────────────────────────────────────────────────────
@@ -40,7 +40,7 @@ export const SHORTCUTS = [
   { id: 51, description: "기본 배율로 초기화",     category: "브라우저", emoji: "🎯", keys: { meta: true,  shift: false, alt: false, ctrl: false, key: "0" },        display: "⌘0"   },
   { id: 52, description: "시크릿 창 열기",         category: "브라우저", emoji: "🕵️", keys: { meta: true,  shift: true,  alt: false, ctrl: false, key: "n" },        display: "⌘⇧N", browserBlocked: true },
   { id: 53, description: "북마크 바 보기/숨기기",  category: "브라우저", emoji: "📚", keys: { meta: true,  shift: true,  alt: false, ctrl: false, key: "b" },        display: "⌘⇧B"  },
-  { id: 54, description: "다운로드 목록 열기",     category: "브라우저", emoji: "⬇️", keys: { meta: true,  shift: true,  alt: false, ctrl: false, key: "j" },        display: "⌘⇧J"  },
+  { id: 54, description: "다운로드 목록 열기",     category: "브라우저", emoji: "⬇️", keys: { meta: true,  shift: true,  alt: false, ctrl: false, key: "j" },        display: "⌘⇧J", browserBlocked: true },
 
   // ── 텍스트 편집 ───────────────────────────────────────────────────────
   { id: 21, description: "텍스트 굵게",    category: "텍스트 편집", emoji: "𝐁", keys: { meta: true, shift: false, alt: false, ctrl: false, key: "b" }, display: "⌘B"  },
