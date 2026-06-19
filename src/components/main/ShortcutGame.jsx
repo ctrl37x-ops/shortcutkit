@@ -39,6 +39,13 @@ function normalizeKey(key) {
   return key === '₩' ? '`' : key;
 }
 
+// 한글 자모/음절 여부 감지
+function isHangul(key) {
+  if (!key || key.length !== 1) return false;
+  const code = key.charCodeAt(0);
+  return (code >= 0xAC00 && code <= 0xD7AF) || (code >= 0x1100 && code <= 0x11FF) || (code >= 0x3130 && code <= 0x318F);
+}
+
 function matchKeys(event, expected) {
   return (
     event.metaKey === expected.meta &&
@@ -119,6 +126,7 @@ export default function ShortcutGame() {
   const [results, setResults] = useState([]);
   const [wrongIds, setWrongIds] = useState(new Set());
   const [favoriteIds, setFavoriteIds] = useState(new Set());
+  const [koreanWarning, setKoreanWarning] = useState(false);
 
   const startGame = useCallback(
     (customShortcuts = null) => {
@@ -156,6 +164,11 @@ export default function ShortcutGame() {
 
       const current = shortcuts[currentIndex];
       if (current.browserBlocked) return;
+
+      // 한글 입력 모드 감지 → 안내 후 입력 무시
+      if (isHangul(e.key)) { setKoreanWarning(true); return; }
+      setKoreanWarning(false);
+
       const isCorrect = matchKeys(e, current.keys);
       const pressedDisplay = formatPressedKeys(e);
       const nextIndex = currentIndex + 1;
@@ -569,6 +582,12 @@ export default function ShortcutGame() {
                   </div>
                 )}
               </>
+            ) : koreanWarning ? (
+              <div className="w-full py-3 px-5 rounded-2xl text-center"
+                style={{ background: 'rgba(245,158,11,0.08)', border: '1.5px solid rgba(245,158,11,0.25)' }}>
+                <p className="text-sm font-semibold" style={{ color: '#d97706' }}>⌨️ 한/영 키를 눌러 영문으로 전환하세요</p>
+                <p className="text-xs mt-0.5" style={{ color: '#b45309' }}>한글 입력 상태에서는 단축키가 인식되지 않아요</p>
+              </div>
             ) : (
               <p className="text-gray-400 text-sm">단축키를 입력하세요</p>
             )}

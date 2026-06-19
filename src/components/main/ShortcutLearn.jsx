@@ -84,6 +84,13 @@ function normalizeKey(key) {
   return key === '₩' ? '`' : key;
 }
 
+// 한글 자모/음절 여부 감지
+function isHangul(key) {
+  if (!key || key.length !== 1) return false;
+  const code = key.charCodeAt(0);
+  return (code >= 0xAC00 && code <= 0xD7AF) || (code >= 0x1100 && code <= 0x11FF) || (code >= 0x3130 && code <= 0x318F);
+}
+
 function matchKeys(event, expected) {
   return (
     event.metaKey === expected.meta &&
@@ -524,6 +531,7 @@ function LearnSession({ shortcuts, category, onComplete, onExit }) {
   const [feedback, setFeedback] = useState(null);
   const [cardKey, setCardKey] = useState(0);
   const [favoriteIds, setFavoriteIds] = useState(() => getFavoriteIds());
+  const [koreanWarning, setKoreanWarning] = useState(false);
   const errorsRef = useRef({});
 
   const current = shortcuts[currentIndex];
@@ -547,6 +555,10 @@ function LearnSession({ shortcuts, category, onComplete, onExit }) {
     if (feedback) return;
     if (current.browserBlocked) return;
     if (['Meta', 'Shift', 'Alt', 'Control'].includes(e.key)) return;
+
+    // 한글 입력 모드 감지 → 안내 후 입력 무시
+    if (isHangul(e.key)) { setKoreanWarning(true); return; }
+    setKoreanWarning(false);
 
     const correct = matchKeys(e, current.keys);
     const pressedDisplay = formatPressedKeys(e);
@@ -645,6 +657,15 @@ function LearnSession({ shortcuts, category, onComplete, onExit }) {
               </div>
             )}
           </div>
+
+          {/* 한글 입력 경고 */}
+          {koreanWarning && !isDone && !current.browserBlocked && (
+            <div className="w-full py-2.5 px-4 rounded-xl text-center"
+              style={{ background: 'rgba(245,158,11,0.08)', border: '1.5px solid rgba(245,158,11,0.22)' }}>
+              <p className="text-xs font-semibold" style={{ color: '#d97706' }}>⌨️ 한/영 키를 눌러 영문으로 전환하세요</p>
+              <p className="text-xs mt-0.5" style={{ color: '#b45309' }}>한글 입력 상태에서는 단축키가 인식되지 않아요</p>
+            </div>
+          )}
 
           {/* 건너뛰기 버튼 (모든 단축키, isDone 제외) */}
           {!isDone && (
