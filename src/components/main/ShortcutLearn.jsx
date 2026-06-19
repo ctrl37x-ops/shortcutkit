@@ -72,7 +72,7 @@ function ShortcutKeys({ display, size = 'md' }) {
     <div className="flex items-center gap-2 justify-center flex-wrap">
       {keys.map((key, i) => (
         <span key={i} className="flex items-center gap-2">
-          {i > 0 && <span className="text-gray-300 font-light">+</span>}
+          {i > 0 && <span style={{ color: 'var(--sk-text-5)', fontWeight: 300 }}>+</span>}
           <KeyBadge label={key} size={size} />
         </span>
       ))}
@@ -349,21 +349,22 @@ function LearnHome({ onStart }) {
 
         {/* 검색 */}
         <div className="mb-6 relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none text-sm">🔍</span>
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-sm" style={{ color: 'var(--sk-text-5)' }}>🔍</span>
           <input
             type="text"
             placeholder="단축키 검색 (예: 복사, ⌘C, Finder)"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-10 pr-10 py-3 rounded-xl text-sm outline-none transition-all"
-            style={{ background: 'white', border: '1.5px solid #ebebeb', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
+            style={{ background: 'var(--sk-bg-card)', border: '1.5px solid var(--sk-border)', color: 'var(--sk-text)', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
             onFocus={(e) => { e.target.style.borderColor = '#bfdbfe'; e.target.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.08)'; }}
-            onBlur={(e) => { e.target.style.borderColor = '#ebebeb'; e.target.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}
+            onBlur={(e) => { e.target.style.borderColor = 'var(--sk-border)'; e.target.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}
           />
           {search && (
             <button
               onClick={() => setSearch('')}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 transition-colors text-sm"
+              className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors text-sm"
+              style={{ color: 'var(--sk-text-4)' }}
             >✕</button>
           )}
         </div>
@@ -371,22 +372,22 @@ function LearnHome({ onStart }) {
         {/* 검색 결과 */}
         {searchResults ? (
           <div>
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+            <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--sk-text-4)' }}>
               검색 결과 ({searchResults.length}개)
             </p>
             {searchResults.length === 0 ? (
-              <p className="text-gray-400 text-sm text-center py-10">검색 결과가 없어요</p>
+              <p className="text-sm text-center py-10" style={{ color: 'var(--sk-text-4)' }}>검색 결과가 없어요</p>
             ) : (
               <>
                 <div className="flex flex-col gap-2 mb-4">
                   {searchResults.map((s) => (
                     <div key={s.id} className="flex items-center justify-between px-4 py-3 rounded-xl"
-                      style={{ background: 'white', border: '1.5px solid #ebebeb', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+                      style={{ background: 'var(--sk-bg-card)', border: '1.5px solid var(--sk-border)', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
                       <div className="flex items-center gap-3">
                         <span className="text-xl">{s.emoji}</span>
                         <div>
-                          <p className="text-sm font-semibold text-gray-800">{s.description}</p>
-                          <p className="text-xs text-gray-400">{s.category}</p>
+                          <p className="text-sm font-semibold" style={{ color: 'var(--sk-text-2)' }}>{s.description}</p>
+                          <p className="text-xs" style={{ color: 'var(--sk-text-4)' }}>{s.category}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
@@ -415,8 +416,8 @@ function LearnHome({ onStart }) {
                 className="w-full p-5 rounded-2xl text-left transition-all hover:-translate-y-0.5 flex items-center justify-between group"
                 style={{ background: 'linear-gradient(135deg, rgba(37,99,235,0.07), rgba(79,70,229,0.04))', border: '1.5px solid rgba(37,99,235,0.18)', boxShadow: '0 2px 16px rgba(37,99,235,0.08)' }}>
                 <div>
-                  <div className="font-bold text-gray-900 text-lg">⚡ 전체 학습</div>
-                  <div className="text-sm text-gray-500 mt-0.5">
+                  <div className="font-bold text-lg" style={{ color: 'var(--sk-text)' }}>⚡ 전체 학습</div>
+                  <div className="text-sm mt-0.5" style={{ color: 'var(--sk-text-3)' }}>
                     모든 {SHORTCUTS.length}개 단축키 · 각 {REPS}회 입력
                     {masteredIds.size > 0 && (
                       <span className="ml-2 text-green-500 font-semibold">{masteredIds.size}/{SHORTCUTS.length} 완료</span>
@@ -432,8 +433,8 @@ function LearnHome({ onStart }) {
                   className="w-full p-5 rounded-2xl text-left transition-all hover:-translate-y-0.5 flex items-center justify-between group"
                   style={{ background: 'linear-gradient(135deg, rgba(239,68,68,0.07), rgba(220,38,38,0.04))', border: '1.5px solid rgba(239,68,68,0.2)', boxShadow: '0 2px 16px rgba(239,68,68,0.06)' }}>
                   <div>
-                    <div className="font-bold text-gray-900 text-lg">📝 오답 노트</div>
-                    <div className="text-sm text-gray-500 mt-0.5">이전에 틀린 {wrongShortcuts.length}개 단축키 집중 연습</div>
+                    <div className="font-bold text-lg" style={{ color: 'var(--sk-text)' }}>📝 오답 노트</div>
+                    <div className="text-sm mt-0.5" style={{ color: 'var(--sk-text-3)' }}>이전에 틀린 {wrongShortcuts.length}개 단축키 집중 연습</div>
                   </div>
                   <span className="text-red-300 text-xl group-hover:translate-x-1 transition-transform">→</span>
                 </button>
@@ -445,8 +446,8 @@ function LearnHome({ onStart }) {
                   className="w-full p-5 rounded-2xl text-left transition-all hover:-translate-y-0.5 flex items-center justify-between group"
                   style={{ background: 'linear-gradient(135deg, rgba(236,72,153,0.06), rgba(251,113,133,0.04))', border: '1.5px solid rgba(251,113,133,0.25)', boxShadow: '0 2px 16px rgba(236,72,153,0.06)' }}>
                   <div>
-                    <div className="font-bold text-gray-900 text-lg">♥ 즐겨찾기</div>
-                    <div className="text-sm text-gray-500 mt-0.5">북마크한 {favoriteShortcuts.length}개 단축키</div>
+                    <div className="font-bold text-lg" style={{ color: 'var(--sk-text)' }}>♥ 즐겨찾기</div>
+                    <div className="text-sm mt-0.5" style={{ color: 'var(--sk-text-3)' }}>북마크한 {favoriteShortcuts.length}개 단축키</div>
                   </div>
                   <span className="text-pink-300 text-xl group-hover:translate-x-1 transition-transform">→</span>
                 </button>
@@ -458,19 +459,19 @@ function LearnHome({ onStart }) {
                     key={n}
                     onClick={() => onStart(shuffle(SHORTCUTS).slice(0, n), `랜덤 ${n}개`)}
                     className="py-4 rounded-xl flex flex-col items-center gap-1 transition-all hover:-translate-y-0.5"
-                    style={{ background: 'white', border: '1.5px solid #ebebeb', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
+                    style={{ background: 'var(--sk-bg-card)', border: '1.5px solid var(--sk-border)', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
                     onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#bfdbfe'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(37,99,235,0.08)'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#ebebeb'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--sk-border)'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}
                   >
                     <span className="text-xl">🎲</span>
-                    <span className="text-sm font-bold text-gray-900">{n}개</span>
-                    <span className="text-xs text-gray-400">랜덤</span>
+                    <span className="text-sm font-bold" style={{ color: 'var(--sk-text)' }}>{n}개</span>
+                    <span className="text-xs" style={{ color: 'var(--sk-text-4)' }}>랜덤</span>
                   </button>
                 ))}
               </div>
             </div>
 
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">카테고리별 학습</p>
+            <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--sk-text-4)' }}>카테고리별 학습</p>
             <div className="flex flex-col gap-2.5">
               {nonAll.map((cat) => {
                 const items = SHORTCUTS.filter((s) => s.category === cat);
@@ -481,17 +482,17 @@ function LearnHome({ onStart }) {
                 return (
                   <button key={cat} onClick={() => onStart(items, cat)}
                     className="w-full p-4 rounded-xl text-left transition-all duration-150 flex items-center justify-between group"
-                    style={{ background: 'white', border: '1.5px solid #ebebeb', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
+                    style={{ background: 'var(--sk-bg-card)', border: '1.5px solid var(--sk-border)', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
                     onMouseEnter={(e) => { e.currentTarget.style.borderColor = allBlocked ? '#fde68a' : '#bfdbfe'; e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = allBlocked ? '0 4px 16px rgba(245,158,11,0.08)' : '0 4px 16px rgba(37,99,235,0.08)'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#ebebeb'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}>
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--sk-border)'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}>
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0"
                         style={{ background: allBlocked ? 'rgba(245,158,11,0.08)' : 'rgba(37,99,235,0.07)' }}>
                         {meta.emoji}
                       </div>
                       <div>
-                        <div className="font-semibold text-gray-900">{cat}</div>
-                        <div className="text-xs text-gray-400 mt-0.5">
+                        <div className="font-semibold" style={{ color: 'var(--sk-text)' }}>{cat}</div>
+                        <div className="text-xs mt-0.5" style={{ color: 'var(--sk-text-4)' }}>
                           {meta.desc} · {items.length}개
                           {allBlocked && <span style={{ color: '#f59e0b' }}> · 브라우저에서 입력 불가</span>}
                           {!allBlocked && interactive < items.length && (
@@ -504,12 +505,12 @@ function LearnHome({ onStart }) {
                       {masteredInCat > 0 && (
                         <div className="text-right">
                           <div className="text-xs font-bold text-green-500">{masteredInCat}/{items.length}</div>
-                          <div className="w-12 h-1.5 rounded-full mt-0.5 overflow-hidden" style={{ background: '#e5e7eb' }}>
+                          <div className="w-12 h-1.5 rounded-full mt-0.5 overflow-hidden" style={{ background: 'var(--sk-border)' }}>
                             <div className="h-full rounded-full" style={{ width: `${(masteredInCat / items.length) * 100}%`, background: '#22c55e' }} />
                           </div>
                         </div>
                       )}
-                      <span className={`text-lg transition-colors ${allBlocked ? 'text-amber-300 group-hover:text-amber-400' : 'text-gray-300 group-hover:text-blue-400'}`}>→</span>
+                      <span className={`text-lg transition-colors ${allBlocked ? 'text-amber-300 group-hover:text-amber-400' : 'group-hover:text-blue-400'}`} style={!allBlocked ? { color: 'var(--sk-text-5)' } : {}}>→</span>
                     </div>
                   </button>
                 );
@@ -532,7 +533,7 @@ function RepDots({ filled }) {
           style={{
             width: i < filled ? 14 : 12,
             height: i < filled ? 14 : 12,
-            background: i < filled ? '#22c55e' : i === filled ? '#d1d5db' : '#e5e7eb',
+            background: i < filled ? '#22c55e' : 'var(--sk-border)',
             boxShadow: i < filled ? '0 0 6px rgba(34,197,94,0.5)' : 'none',
           }} />
       ))}
@@ -616,7 +617,7 @@ function LearnSession({ shortcuts, category, onComplete, onExit }) {
         <span className="text-xs font-medium tabular-nums" style={{ color: 'var(--sk-text-4)' }}>{currentIndex + 1} / {shortcuts.length}</span>
       </header>
 
-      <div className="h-1 shrink-0" style={{ background: '#ebebeb' }}>
+      <div className="h-1 shrink-0" style={{ background: 'var(--sk-border)' }}>
         <div className="h-full transition-all duration-500"
           style={{ width: `${progressPct}%`, background: 'linear-gradient(90deg, #2563eb, #4f46e5)' }} />
       </div>
@@ -628,14 +629,14 @@ function LearnSession({ shortcuts, category, onComplete, onExit }) {
           <div className="w-full rounded-3xl p-8 text-center transition-all duration-200 relative"
             style={{
               background: isDone ? 'linear-gradient(135deg,#f0fdf4,#dcfce7)' : feedback?.type === 'incorrect' ? 'linear-gradient(135deg,#fff5f5,#fee2e2)' : 'var(--sk-bg-card)',
-              border: `2px solid ${isDone ? '#86efac' : feedback?.type === 'incorrect' ? '#fca5a5' : '#ebebeb'}`,
+              border: `2px solid ${isDone ? '#86efac' : feedback?.type === 'incorrect' ? '#fca5a5' : 'var(--sk-border)'}`,
               boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
             }}>
             {/* 즐겨찾기 버튼 */}
             <button
               onClick={() => { toggleFavorite(current.id); setFavoriteIds(getFavoriteIds()); }}
               className="absolute top-4 right-4 text-2xl transition-all hover:scale-125 active:scale-95"
-              style={{ color: favoriteIds.has(current.id) ? '#ef4444' : '#d1d5db', lineHeight: 1 }}
+              style={{ color: favoriteIds.has(current.id) ? '#ef4444' : 'var(--sk-border)', lineHeight: 1 }}
               title={favoriteIds.has(current.id) ? '즐겨찾기 해제' : '즐겨찾기 추가'}
             >
               {favoriteIds.has(current.id) ? '♥' : '♡'}
@@ -649,7 +650,7 @@ function LearnSession({ shortcuts, category, onComplete, onExit }) {
           {/* 틀렸을 때 키보드 표시 */}
           {feedback?.type === 'incorrect' && (
             <div className="w-full animate-slide-in-up">
-              <p className="text-center text-xs text-gray-400 mb-2">정답 위치</p>
+              <p className="text-center text-xs mb-2" style={{ color: 'var(--sk-text-4)' }}>정답 위치</p>
               <MacKeyboard shortcut={current} />
             </div>
           )}
@@ -668,8 +669,8 @@ function LearnSession({ shortcuts, category, onComplete, onExit }) {
             ) : feedback?.type === 'incorrect' ? (
               <p className="text-red-400 font-semibold text-sm">✗ 다시 해보세요 — 입력: {feedback.pressedDisplay}</p>
             ) : (
-              <div className="flex items-center gap-2 text-gray-300 text-sm">
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-300 animate-pulse" />
+              <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--sk-text-5)' }}>
+                <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#60a5fa' }} />
                 위 단축키를 눌러보세요 ({reps}/{REPS})
               </div>
             )}
@@ -688,7 +689,8 @@ function LearnSession({ shortcuts, category, onComplete, onExit }) {
           {!isDone && (
             <button
               onClick={goNext}
-              className="text-xs text-gray-300 hover:text-gray-500 transition-colors py-1 px-3"
+              className="text-xs transition-colors py-1 px-3"
+              style={{ color: 'var(--sk-text-5)' }}
             >
               건너뛰기 →
             </button>
@@ -739,23 +741,23 @@ function LearnResult({ category, results, onRetry, onHome }) {
         <div className="max-w-md mx-auto flex flex-col items-center gap-7">
           <div className="text-center">
             <div className="text-6xl mb-3">{grade.emoji}</div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-1">{grade.text}</h2>
-            <p className="text-gray-400 text-sm">{results.length}개 단축키 · 각 {REPS}회 입력 완료</p>
+            <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--sk-text)' }}>{grade.text}</h2>
+            <p className="text-sm" style={{ color: 'var(--sk-text-4)' }}>{results.length}개 단축키 · 각 {REPS}회 입력 완료</p>
           </div>
 
           <div className="grid grid-cols-3 gap-3 w-full">
             {[{ label: '완료', value: results.length }, { label: '완벽', value: perfect.length }, { label: '오타', value: totalErrors }].map((s) => (
               <div key={s.label} className="rounded-2xl p-4 text-center"
-                style={{ background: 'white', border: '1.5px solid #ebebeb', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-                <div className="text-xl font-bold text-gray-900">{s.value}</div>
-                <div className="text-xs text-gray-400 mt-0.5">{s.label}</div>
+                style={{ background: 'var(--sk-bg-card)', border: '1.5px solid var(--sk-border)', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+                <div className="text-xl font-bold" style={{ color: 'var(--sk-text)' }}>{s.value}</div>
+                <div className="text-xs mt-0.5" style={{ color: 'var(--sk-text-4)' }}>{s.label}</div>
               </div>
             ))}
           </div>
 
           {mistakes.length > 0 && (
             <div className="w-full">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">틀린 단축키 ({mistakes.length}개)</p>
+              <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--sk-text-4)' }}>틀린 단축키 ({mistakes.length}개)</p>
               <div className="flex flex-col gap-2">
                 {mistakes.map((r) => (
                   <div key={r.shortcut.id} className="flex items-center justify-between px-4 py-3 rounded-xl"
@@ -763,7 +765,7 @@ function LearnResult({ category, results, onRetry, onHome }) {
                     <div className="flex items-center gap-3">
                       <span className="text-lg">{r.shortcut.emoji}</span>
                       <div>
-                        <p className="text-sm font-semibold text-gray-800">{r.shortcut.description}</p>
+                        <p className="text-sm font-semibold" style={{ color: 'var(--sk-text-2)' }}>{r.shortcut.description}</p>
                         <p className="text-xs text-red-400">{r.errors}번 틀림</p>
                       </div>
                     </div>
@@ -776,7 +778,7 @@ function LearnResult({ category, results, onRetry, onHome }) {
 
           {perfect.length > 0 && (
             <details className="w-full">
-              <summary className="text-sm text-gray-400 cursor-pointer hover:text-gray-600 transition-colors list-none">
+              <summary className="text-sm cursor-pointer transition-colors list-none" style={{ color: 'var(--sk-text-4)' }}>
                 ▸ 완벽하게 입력한 단축키 ({perfect.length}개)
               </summary>
               <div className="flex flex-col gap-2 mt-2">
@@ -785,7 +787,7 @@ function LearnResult({ category, results, onRetry, onHome }) {
                     style={{ background: '#f0fdf4', border: '1.5px solid #bbf7d0' }}>
                     <div className="flex items-center gap-3">
                       <span className="text-lg">{r.shortcut.emoji}</span>
-                      <p className="text-sm font-semibold text-gray-800">{r.shortcut.description}</p>
+                      <p className="text-sm font-semibold" style={{ color: 'var(--sk-text-2)' }}>{r.shortcut.description}</p>
                     </div>
                     <ShortcutKeys display={r.shortcut.display} size="sm" />
                   </div>
@@ -804,8 +806,10 @@ function LearnResult({ category, results, onRetry, onHome }) {
             )}
             <div className="flex gap-3">
               <button onClick={onHome}
-                className="flex-1 py-3 rounded-xl font-semibold text-gray-700 transition-all hover:bg-gray-50"
-                style={{ background: 'white', border: '1.5px solid #ebebeb' }}>
+                className="flex-1 py-3 rounded-xl font-semibold transition-all"
+                style={{ background: 'var(--sk-bg-card)', border: '1.5px solid var(--sk-border)', color: 'var(--sk-text-2)' }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--sk-bg)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--sk-bg-card)'; }}>
                 학습 홈으로
               </button>
               <Link href="/practice"

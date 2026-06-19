@@ -105,7 +105,7 @@ function ShortcutKeys({ display, size = 'md' }) {
     <div className="flex items-center gap-2 justify-center flex-wrap">
       {keys.map((key, i) => (
         <span key={i} className="flex items-center gap-2">
-          {i > 0 && <span className="text-gray-300 font-light">+</span>}
+          {i > 0 && <span style={{ color: 'var(--sk-text-5)', fontWeight: 300 }}>+</span>}
           <KeyBadge label={key} size={size} />
         </span>
       ))}
@@ -208,7 +208,7 @@ export default function ShortcutGame() {
         }, 1900);
       }
     },
-    [gameStatus, feedback, shortcuts, currentIndex, streak]
+    [gameStatus, feedback, shortcuts, currentIndex, streak, timerMode]
   );
 
   useEffect(() => {
@@ -285,7 +285,7 @@ export default function ShortcutGame() {
             </div>
 
             <div className="w-full">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">카테고리</p>
+              <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--sk-text-4)' }}>카테고리</p>
               <div className="flex flex-wrap gap-2 justify-center">
                 {CATEGORIES.map((cat) => {
                   const pool = cat === '전체' ? SHORTCUTS : SHORTCUTS.filter((s) => s.category === cat);
@@ -300,7 +300,7 @@ export default function ShortcutGame() {
                       style={
                         selectedCategory === cat
                           ? { background: allBlocked ? '#f59e0b' : '#2563eb', color: 'white', boxShadow: allBlocked ? '0 2px 8px rgba(245,158,11,0.3)' : '0 2px 8px rgba(37,99,235,0.3)' }
-                          : { background: '#efefef', color: allBlocked ? '#d97706' : '#6b7280' }
+                          : { background: 'var(--sk-bg)', color: allBlocked ? '#d97706' : 'var(--sk-text-3)' }
                       }
                     >
                       {cat}{allBlocked ? ' ⚠️' : ''}
@@ -311,7 +311,7 @@ export default function ShortcutGame() {
             </div>
 
             <div className="w-full">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">문항 수</p>
+              <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--sk-text-4)' }}>문항 수</p>
               <div className="flex gap-2 justify-center">
                 {[10, 20, '전체'].map((n) => (
                   <button
@@ -321,13 +321,37 @@ export default function ShortcutGame() {
                     style={
                       quizSize === n
                         ? { background: '#2563eb', color: 'white', boxShadow: '0 2px 8px rgba(37,99,235,0.3)' }
-                        : { background: '#efefef', color: '#6b7280' }
+                        : { background: 'var(--sk-bg)', color: 'var(--sk-text-3)' }
                     }
                   >
                     {n === '전체' ? '전체' : `${n}개`}
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* 게임 모드 */}
+            <div className="w-full">
+              <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--sk-text-4)' }}>게임 모드</p>
+              <div className="flex gap-2 justify-center">
+                {[{ id: false, label: '일반', icon: '🎯' }, { id: true, label: `타이머 ${TIMER_SECONDS}초`, icon: '⏱' }].map((m) => (
+                  <button
+                    key={String(m.id)}
+                    onClick={() => setTimerMode(m.id)}
+                    className="flex-1 py-2.5 rounded-full text-sm font-medium transition-all duration-150"
+                    style={timerMode === m.id
+                      ? { background: '#2563eb', color: 'white', boxShadow: '0 2px 8px rgba(37,99,235,0.3)' }
+                      : { background: 'var(--sk-bg-card)', color: 'var(--sk-text-3)', border: '1.5px solid var(--sk-border)' }}
+                  >
+                    {m.icon} {m.label}
+                  </button>
+                ))}
+              </div>
+              {timerMode && (
+                <p className="text-xs mt-2" style={{ color: 'var(--sk-text-4)' }}>
+                  제한 시간 안에 최대한 많이 맞춰보세요
+                </p>
+              )}
             </div>
 
             {(() => {
@@ -367,30 +391,6 @@ export default function ShortcutGame() {
               );
             })()}
 
-            {/* 타이머 모드 */}
-            <div className="w-full">
-              <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--sk-text-4)' }}>게임 모드</p>
-              <div className="flex gap-2 justify-center">
-                {[{ id: false, label: '일반', icon: '🎯' }, { id: true, label: `타이머 ${TIMER_SECONDS}초`, icon: '⏱' }].map((m) => (
-                  <button
-                    key={String(m.id)}
-                    onClick={() => setTimerMode(m.id)}
-                    className="flex-1 py-2.5 rounded-full text-sm font-medium transition-all duration-150"
-                    style={timerMode === m.id
-                      ? { background: '#2563eb', color: 'white', boxShadow: '0 2px 8px rgba(37,99,235,0.3)' }
-                      : { background: 'var(--sk-bg-card)', color: 'var(--sk-text-3)', border: '1.5px solid var(--sk-border)' }}
-                  >
-                    {m.icon} {m.label}
-                  </button>
-                ))}
-              </div>
-              {timerMode && (
-                <p className="text-xs mt-2" style={{ color: 'var(--sk-text-4)' }}>
-                  제한 시간 안에 최대한 많이 맞춰보세요
-                </p>
-              )}
-            </div>
-
             <p className="text-xs" style={{ color: 'var(--sk-text-4)' }}>무작위 출제 · 연속 정답 시 보너스</p>
           </div>
         </div>
@@ -423,8 +423,8 @@ export default function ShortcutGame() {
             {/* 등급 */}
             <div className="text-center">
               <div className="text-6xl mb-3">{grade.emoji}</div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-1">{grade.text}</h2>
-              <p className="text-gray-400 text-sm">라운드 완료</p>
+              <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--sk-text)' }}>{grade.text}</h2>
+              <p className="text-sm" style={{ color: 'var(--sk-text-4)' }}>라운드 완료</p>
             </div>
 
             {/* 스탯 카드 */}
@@ -448,7 +448,7 @@ export default function ShortcutGame() {
             {/* 오답 목록 */}
             {wrongItems.length > 0 && (
               <div className="w-full">
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--sk-text-4)' }}>
                   틀린 단축키 ({wrongItems.length}개)
                 </p>
                 <div className="flex flex-col gap-2">
@@ -461,7 +461,7 @@ export default function ShortcutGame() {
                       <div className="flex items-center gap-3">
                         <span className="text-lg">{r.shortcut.emoji}</span>
                         <div>
-                          <p className="text-sm font-semibold text-gray-800">{r.shortcut.description}</p>
+                          <p className="text-sm font-semibold" style={{ color: 'var(--sk-text-2)' }}>{r.shortcut.description}</p>
                           <p className="text-xs text-red-400">입력: {r.pressedDisplay}</p>
                         </div>
                       </div>
@@ -475,7 +475,7 @@ export default function ShortcutGame() {
             {/* 정답 목록 (접힘) */}
             {results.filter((r) => r.correct).length > 0 && (
               <details className="w-full">
-                <summary className="text-sm text-gray-400 cursor-pointer hover:text-gray-600 transition-colors list-none flex items-center gap-1">
+                <summary className="text-sm cursor-pointer transition-colors list-none flex items-center gap-1" style={{ color: 'var(--sk-text-4)' }}>
                   <span>▸ 맞힌 단축키 ({results.filter((r) => r.correct).length}개)</span>
                 </summary>
                 <div className="flex flex-col gap-2 mt-2">
@@ -487,7 +487,7 @@ export default function ShortcutGame() {
                     >
                       <div className="flex items-center gap-3">
                         <span className="text-lg">{r.shortcut.emoji}</span>
-                        <p className="text-sm font-semibold text-gray-800">{r.shortcut.description}</p>
+                        <p className="text-sm font-semibold" style={{ color: 'var(--sk-text-2)' }}>{r.shortcut.description}</p>
                       </div>
                       <ShortcutKeys display={r.shortcut.display} size="sm" />
                     </div>
@@ -517,8 +517,10 @@ export default function ShortcutGame() {
                 </button>
                 <button
                   onClick={() => setGameStatus('idle')}
-                  className="flex-1 py-3 rounded-xl font-semibold text-gray-700 transition-all hover:bg-gray-100"
-                  style={{ background: 'white', border: '1.5px solid #ebebeb' }}
+                  className="flex-1 py-3 rounded-xl font-semibold transition-all"
+                  style={{ background: 'var(--sk-bg-card)', border: '1.5px solid var(--sk-border)', color: 'var(--sk-text-2)' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--sk-bg)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--sk-bg-card)'; }}
                 >
                   처음으로
                 </button>
@@ -560,7 +562,7 @@ export default function ShortcutGame() {
       </header>
 
       {/* 진행 바 */}
-      <div className="h-1 shrink-0" style={{ background: '#ebebeb' }}>
+      <div className="h-1 shrink-0" style={{ background: 'var(--sk-border)' }}>
         <div
           className="h-full transition-all duration-500 ease-out"
           style={{
@@ -591,7 +593,7 @@ export default function ShortcutGame() {
           {/* 이모지 + 설명 */}
           <div className={`transition-all duration-200 ${feedback ? 'scale-95 opacity-50' : 'scale-100 opacity-100'}`}>
             <div className="text-7xl mb-4">{current.emoji}</div>
-            <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight">{current.description}</h2>
+            <h2 className="text-4xl font-extrabold tracking-tight" style={{ color: 'var(--sk-text)' }}>{current.description}</h2>
           </div>
 
           {/* browserBlocked: 스킵 버튼 */}
@@ -603,12 +605,12 @@ export default function ShortcutGame() {
               <button
                 onClick={() => {
                   const nextIndex = currentIndex + 1;
-                  const isLast = nextIndex >= shortcuts.length;
+                  const isLast = !timerMode && nextIndex >= shortcuts.length;
                   setResults((prev) => [...prev, { shortcut: current, correct: true, pressedDisplay: '(건너뜀)' }]);
                   setAnsweredCount((prev) => prev + 1);
                   setCorrectCount((prev) => prev + 1);
                   if (isLast) setGameStatus('result');
-                  else setCurrentIndex(nextIndex);
+                  else setCurrentIndex(timerMode ? (nextIndex >= shortcuts.length ? 0 : nextIndex) : nextIndex);
                 }}
                 className="px-6 py-2 rounded-xl font-semibold text-white text-sm transition-all hover:-translate-y-0.5"
                 style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', boxShadow: '0 2px 8px rgba(245,158,11,0.3)' }}
@@ -650,7 +652,7 @@ export default function ShortcutGame() {
                 {/* 오답 시 정답 키 시각적 표시 */}
                 {feedback.type === 'incorrect' && (
                   <div className="animate-slide-in-up flex flex-col items-center gap-1.5">
-                    <p className="text-xs text-gray-400">정답</p>
+                    <p className="text-xs" style={{ color: 'var(--sk-text-4)' }}>정답</p>
                     <ShortcutKeys display={current.display} size="lg" />
                   </div>
                 )}
@@ -662,7 +664,7 @@ export default function ShortcutGame() {
                 <p className="text-xs mt-0.5" style={{ color: '#b45309' }}>한글 입력 상태에서는 단축키가 인식되지 않아요</p>
               </div>
             ) : (
-              <p className="text-gray-400 text-sm">단축키를 입력하세요</p>
+              <p className="text-sm" style={{ color: 'var(--sk-text-4)' }}>단축키를 입력하세요</p>
             )}
           </div>
         </div>
