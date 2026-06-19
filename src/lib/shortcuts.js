@@ -75,6 +75,49 @@ export const SHORTCUTS = [
   { id: 46, description: "홈 폴더 열기",           category: "Finder", emoji: "🏠", keys: { meta: true, shift: true,  alt: false, ctrl: false, key: "h" }, display: "⌘⇧H"  },
   { id: 47, description: "데스크탑 폴더 열기",     category: "Finder", emoji: "🖥️", keys: { meta: true, shift: true,  alt: false, ctrl: false, key: "d" }, display: "⌘⇧D"  },
   { id: 48, description: "파일 훑어보기",          category: "Finder", emoji: "👀", keys: { meta: true, shift: false, alt: false, ctrl: false, key: "y" }, display: "⌘Y"   },
+
+  // ── 기본 조작 (추가) ──────────────────────────────────────────────────────
+  { id: 55, description: "앱 종료",       category: "기본 조작", emoji: "🚪", keys: { meta: true,  shift: false, alt: false, ctrl: false, key: "q"   }, display: "⌘Q",    browserBlocked: true },
+  { id: 56, description: "앱 숨기기",     category: "기본 조작", emoji: "🙈", keys: { meta: true,  shift: false, alt: false, ctrl: false, key: "h"   }, display: "⌘H",    browserBlocked: true },
+  { id: 57, description: "창 최소화",     category: "기본 조작", emoji: "⬇️", keys: { meta: true,  shift: false, alt: false, ctrl: false, key: "m"   }, display: "⌘M",    browserBlocked: true },
+  { id: 58, description: "앱 전환",       category: "기본 조작", emoji: "⇄",  keys: { meta: true,  shift: false, alt: false, ctrl: false, key: "tab" }, display: "⌘Tab",  browserBlocked: true },
+  { id: 59, description: "역순 앱 전환",  category: "기본 조작", emoji: "⇆",  keys: { meta: true,  shift: true,  alt: false, ctrl: false, key: "tab" }, display: "⌘⇧Tab", browserBlocked: true },
+
+  // ── 스크린샷 ──────────────────────────────────────────────────────────────
+  // macOS 가 OS 레벨에서 인터셉트 → keydown 이벤트 미발생
+  { id: 60, description: "전체 화면 캡처",             category: "스크린샷", emoji: "📸", keys: { meta: true, shift: true, alt: false, ctrl: false, key: "3" }, display: "⌘⇧3",  browserBlocked: true },
+  { id: 61, description: "영역 선택 캡처",             category: "스크린샷", emoji: "✂️", keys: { meta: true, shift: true, alt: false, ctrl: false, key: "4" }, display: "⌘⇧4",  browserBlocked: true },
+  { id: 62, description: "스크린샷 도구 모음",         category: "스크린샷", emoji: "🎛️", keys: { meta: true, shift: true, alt: false, ctrl: false, key: "5" }, display: "⌘⇧5",  browserBlocked: true },
+  { id: 63, description: "클립보드에 전체 화면 캡처",  category: "스크린샷", emoji: "📋", keys: { meta: true, shift: true, alt: false, ctrl: true,  key: "3" }, display: "⌘⌃⇧3", browserBlocked: true },
+  { id: 64, description: "클립보드에 영역 선택 캡처",  category: "스크린샷", emoji: "📐", keys: { meta: true, shift: true, alt: false, ctrl: true,  key: "4" }, display: "⌘⌃⇧4", browserBlocked: true },
+
+  // ── 커서 / 선택 (추가) ────────────────────────────────────────────────────
+  { id: 65, description: "이전 단어까지 선택",    category: "커서/선택", emoji: "🔙", keys: { meta: false, shift: true,  alt: true,  ctrl: false, key: "arrowleft"  }, display: "⌥⇧←" },
+  { id: 66, description: "다음 단어까지 선택",    category: "커서/선택", emoji: "🔜", keys: { meta: false, shift: true,  alt: true,  ctrl: false, key: "arrowright" }, display: "⌥⇧→" },
+  // macOS 텍스트 필드 전역 Emacs 단축키
+  { id: 67, description: "줄 맨 앞으로 (Emacs)", category: "커서/선택", emoji: "⏮️", keys: { meta: false, shift: false, alt: false, ctrl: true,  key: "a" }, display: "⌃A" },
+  { id: 68, description: "줄 맨 끝으로 (Emacs)", category: "커서/선택", emoji: "⏭️", keys: { meta: false, shift: false, alt: false, ctrl: true,  key: "e" }, display: "⌃E" },
+  { id: 69, description: "커서 이후 줄 삭제",    category: "커서/선택", emoji: "🔪", keys: { meta: false, shift: false, alt: false, ctrl: true,  key: "k" }, display: "⌃K" },
+  { id: 70, description: "앞 글자 삭제",         category: "커서/선택", emoji: "⌦",  keys: { meta: false, shift: false, alt: false, ctrl: true,  key: "d" }, display: "⌃D" },
+  { id: 71, description: "두 글자 자리 교체",    category: "커서/선택", emoji: "🔀", keys: { meta: false, shift: false, alt: false, ctrl: true,  key: "t" }, display: "⌃T" },
+
+  // ── Finder (추가) ─────────────────────────────────────────────────────────
+  { id: 72, description: "정보 가져오기",   category: "Finder", emoji: "ℹ️", keys: { meta: true, shift: false, alt: false, ctrl: false, key: "i"         }, display: "⌘I"   },
+  // ⌘⌫: 텍스트 편집(id:44)과 동일 키이지만 Finder 맥락에서는 휴지통 이동
+  { id: 73, description: "휴지통으로 이동", category: "Finder", emoji: "🗑️", keys: { meta: true, shift: false, alt: false, ctrl: false, key: "backspace" }, display: "⌘⌫"  },
+  { id: 74, description: "휴지통 비우기",   category: "Finder", emoji: "🔴", keys: { meta: true, shift: true,  alt: false, ctrl: false, key: "backspace" }, display: "⌘⇧⌫", browserBlocked: true },
+  // ⌘↑/↓: 커서/선택(id:35/36)과 동일 키이지만 Finder 맥락에서 폴더 탐색
+  { id: 75, description: "상위 폴더 열기",  category: "Finder", emoji: "📁", keys: { meta: true, shift: false, alt: false, ctrl: false, key: "arrowup"   }, display: "⌘↑"  },
+  { id: 76, description: "선택 항목 열기",  category: "Finder", emoji: "📂", keys: { meta: true, shift: false, alt: false, ctrl: false, key: "arrowdown" }, display: "⌘↓"  },
+  // ⌘1~4: Chrome 탭 전환 단축키와 겹쳐 browserBlocked
+  { id: 77, description: "아이콘 보기",     category: "Finder", emoji: "🔲", keys: { meta: true, shift: false, alt: false, ctrl: false, key: "1"         }, display: "⌘1",  browserBlocked: true },
+  { id: 78, description: "목록 보기",       category: "Finder", emoji: "📋", keys: { meta: true, shift: false, alt: false, ctrl: false, key: "2"         }, display: "⌘2",  browserBlocked: true },
+  { id: 79, description: "열 보기",         category: "Finder", emoji: "📊", keys: { meta: true, shift: false, alt: false, ctrl: false, key: "3"         }, display: "⌘3",  browserBlocked: true },
+  { id: 80, description: "갤러리 보기",     category: "Finder", emoji: "🖼️", keys: { meta: true, shift: false, alt: false, ctrl: false, key: "4"         }, display: "⌘4",  browserBlocked: true },
+
+  // ── 브라우저 (추가) ───────────────────────────────────────────────────────
+  // ⌘⇧R: 페이지 즉시 새로고침으로 browserBlocked
+  { id: 81, description: "강제 새로고침",   category: "브라우저", emoji: "🔃", keys: { meta: true, shift: true, alt: false, ctrl: false, key: "r" }, display: "⌘⇧R", browserBlocked: true },
 ];
 
 export const CATEGORIES = ["전체", ...new Set(SHORTCUTS.map((s) => s.category))];
