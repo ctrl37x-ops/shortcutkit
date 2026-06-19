@@ -16,7 +16,7 @@ export default function HomePage() {
   const categoryCount = CATEGORIES.length - 1;
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#f6f4f0' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: 'var(--sk-bg-page)' }}>
 
       {/* ── 네비 ──────────────────────────────────────────── */}
       <header
@@ -28,23 +28,16 @@ export default function HomePage() {
         }}
       >
         <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <span className="font-bold tracking-tight text-gray-900">⌨️ ShortcutKit</span>
+          <span className="font-bold tracking-tight" style={{ color: 'var(--sk-text)' }}>⌨️ ShortcutKit</span>
           <nav className="flex items-center gap-2">
-            <Link
-              href="/learn"
-              className="px-4 py-1.5 rounded-lg text-sm font-medium transition-colors"
-              style={{ color: '#6b6b6b' }}
-            >
+            <Link href="/cheatsheet" className="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors" style={{ color: 'var(--sk-text-3)' }}>
+              목록
+            </Link>
+            <Link href="/learn" className="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors" style={{ color: 'var(--sk-text-3)' }}>
               학습하기
             </Link>
-            <Link
-              href="/practice"
-              className="px-4 py-1.5 rounded-lg text-sm font-semibold text-white transition-all hover:-translate-y-px"
-              style={{
-                background: '#1a1a1a',
-                boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
-              }}
-            >
+            <Link href="/practice" className="px-4 py-1.5 rounded-lg text-sm font-semibold text-white transition-all hover:-translate-y-px"
+              style={{ background: '#1a1a1a', boxShadow: '0 1px 4px rgba(0,0,0,0.2)' }}>
               연습하기
             </Link>
           </nav>
@@ -146,13 +139,13 @@ export default function HomePage() {
 
       {/* ── 기능 카드 ──────────────────────────────────────── */}
       <section className="px-6 pb-28">
-        <div className="max-w-3xl mx-auto grid sm:grid-cols-3 gap-4">
+        <div className="max-w-3xl mx-auto grid sm:grid-cols-2 md:grid-cols-4 gap-4">
           {[
             {
               href: '/learn',
               icon: '📖',
               title: '학습하기',
-              desc: '카드를 탭해 단축키를 확인하고, 외운 것을 체크하며 진행도를 관리해요',
+              desc: '단축키를 직접 입력하며 손에 익히고, 즐겨찾기로 중요한 것만 모아요',
             },
             {
               href: '/random',
@@ -164,32 +157,38 @@ export default function HomePage() {
               href: '/practice',
               icon: '⌨️',
               title: '연습하기',
-              desc: '동작 설명이 나오면 실제로 키를 눌러봐요. 틀린 것만 골라 집중 연습도 할 수 있어요',
+              desc: '동작 설명이 나오면 실제로 키를 눌러봐요. 타이머 챌린지도 있어요',
+            },
+            {
+              href: '/cheatsheet',
+              icon: '📋',
+              title: '단축키 목록',
+              desc: '전체 단축키를 카테고리별로 한눈에 확인하세요',
             },
           ].map((card) => (
             <Link
               key={card.href}
               href={card.href}
-              className="group p-7 rounded-2xl transition-all duration-200 hover:-translate-y-1"
+              className="group p-6 rounded-2xl transition-all duration-200 hover:-translate-y-1"
               style={{
-                background: 'white',
-                border: '1px solid rgba(0,0,0,0.07)',
-                boxShadow: '0 2px 12px rgba(0,0,0,0.05)',
+                background: 'var(--sk-bg-card)',
+                border: '1px solid var(--sk-border)',
+                boxShadow: '0 2px 12px var(--sk-shadow-md)',
               }}
             >
               <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center text-xl mb-5"
-                style={{ background: '#f0ede8' }}
+                className="w-11 h-11 rounded-xl flex items-center justify-center text-xl mb-4"
+                style={{ background: 'var(--sk-bg)' }}
               >
                 {card.icon}
               </div>
               <h3
-                className="font-bold text-lg mb-2 text-gray-900 transition-colors group-hover:text-gray-600"
-                style={{ fontFamily: 'var(--font-serif)' }}
+                className="font-bold text-base mb-1.5 transition-colors"
+                style={{ fontFamily: 'var(--font-serif)', color: 'var(--sk-text)' }}
               >
                 {card.title}
               </h3>
-              <p style={{ color: '#999', fontSize: '0.875rem', lineHeight: 1.65 }}>
+              <p style={{ color: 'var(--sk-text-4)', fontSize: '0.8rem', lineHeight: 1.65 }}>
                 {card.desc}
               </p>
             </Link>

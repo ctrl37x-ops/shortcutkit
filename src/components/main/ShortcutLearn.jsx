@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { SHORTCUTS, CATEGORIES } from '@/lib/shortcuts';
+import { getStreak, recordActivity } from '@/lib/stats';
 
 const REPS = 3;
 const WRONG_KEY = 'shortcutkit_wrong';
@@ -284,6 +285,7 @@ function LearnHome({ onStart }) {
   const [wrongIds, setWrongIds] = useState(new Set());
   const [masteredIds, setMasteredIds] = useState(new Set());
   const [favoriteIds, setFavoriteIds] = useState(new Set());
+  const [streak, setStreak] = useState(null);
   const [search, setSearch] = useState('');
   const nonAll = CATEGORIES.filter((c) => c !== '전체');
 
@@ -291,6 +293,7 @@ function LearnHome({ onStart }) {
     setWrongIds(getWrongIds());
     setMasteredIds(getMasteredIds());
     setFavoriteIds(getFavoriteIds());
+    setStreak(getStreak());
   }, []);
 
   const wrongShortcuts = SHORTCUTS.filter((s) => wrongIds.has(s.id));
@@ -306,13 +309,14 @@ function LearnHome({ onStart }) {
     : null;
 
   return (
-    <div className="min-h-screen" style={{ background: '#fafafa' }}>
+    <div className="min-h-screen" style={{ background: 'var(--sk-bg)' }}>
       <header className="sticky top-0 z-10 border-b px-6 py-3"
-        style={{ background: 'rgba(250,250,250,0.9)', backdropFilter: 'blur(12px)', borderColor: '#ebebeb' }}>
+        style={{ background: 'var(--sk-header-bg)', backdropFilter: 'blur(12px)', borderColor: 'var(--sk-border)' }}>
         <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <Link href="/" className="font-bold text-gray-900 text-sm">⌨️ ShortcutKit</Link>
+          <Link href="/" className="font-bold text-sm" style={{ color: 'var(--sk-text)' }}>⌨️ ShortcutKit</Link>
           <nav className="flex items-center gap-4">
             <span className="text-sm font-semibold text-blue-600">학습하기</span>
+            <Link href="/cheatsheet" className="text-sm" style={{ color: 'var(--sk-text-3)' }}>목록</Link>
             <Link href="/practice"
               className="px-4 py-1.5 rounded-lg text-sm font-semibold text-white transition-all hover:-translate-y-px"
               style={{ background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', boxShadow: '0 2px 10px rgba(37,99,235,0.3)' }}>
@@ -323,11 +327,24 @@ function LearnHome({ onStart }) {
       </header>
 
       <div className="max-w-2xl mx-auto px-6 py-10">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">단축키 학습하기</h1>
-          <p className="text-gray-500 text-sm">
-            각 단축키를 <strong className="text-gray-700">{REPS}번</strong> 직접 입력하며 손에 익혀요
-          </p>
+        <div className="mb-6 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--sk-text)' }}>단축키 학습하기</h1>
+            <p className="text-sm" style={{ color: 'var(--sk-text-3)' }}>
+              각 단축키를 <strong style={{ color: 'var(--sk-text-2)' }}>{REPS}번</strong> 직접 입력하며 손에 익혀요
+            </p>
+          </div>
+          {/* 스트릭 뱃지 */}
+          {streak?.streak > 0 && (
+            <div className="shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl"
+              style={{ background: 'var(--sk-bg-card)', border: '1.5px solid var(--sk-border)' }}>
+              <span className="text-lg">🔥</span>
+              <div className="text-right">
+                <div className="text-sm font-bold" style={{ color: 'var(--sk-text)' }}>{streak.streak}일 연속</div>
+                <div className="text-xs" style={{ color: 'var(--sk-text-3)' }}>오늘 {streak.todayCount}개</div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 검색 */}
@@ -587,16 +604,16 @@ function LearnSession({ shortcuts, category, onComplete, onExit }) {
   const isDone = reps >= REPS;
 
   return (
-    <div className="min-h-screen flex flex-col select-none" style={{ background: '#fafafa' }}>
+    <div className="min-h-screen flex flex-col select-none" style={{ background: 'var(--sk-bg)' }}>
       <header className="border-b px-6 py-3 flex items-center justify-between shrink-0"
-        style={{ borderColor: '#ebebeb', background: 'white' }}>
+        style={{ borderColor: 'var(--sk-border)', background: 'var(--sk-bg-card)' }}>
         <div className="flex items-center gap-3">
-          <Link href="/" className="font-bold text-gray-900 text-sm">⌨️ ShortcutKit</Link>
-          <span className="text-gray-200 select-none">|</span>
-          <button onClick={onExit} className="text-sm text-gray-400 hover:text-gray-700 transition-colors">← 나가기</button>
+          <Link href="/" className="font-bold text-sm" style={{ color: 'var(--sk-text)' }}>⌨️ ShortcutKit</Link>
+          <span className="select-none" style={{ color: 'var(--sk-border)' }}>|</span>
+          <button onClick={onExit} className="text-sm transition-colors" style={{ color: 'var(--sk-text-4)' }}>← 나가기</button>
         </div>
-        <span className="text-sm font-semibold text-gray-700">{category}</span>
-        <span className="text-xs text-gray-400 font-medium tabular-nums">{currentIndex + 1} / {shortcuts.length}</span>
+        <span className="text-sm font-semibold" style={{ color: 'var(--sk-text-2)' }}>{category}</span>
+        <span className="text-xs font-medium tabular-nums" style={{ color: 'var(--sk-text-4)' }}>{currentIndex + 1} / {shortcuts.length}</span>
       </header>
 
       <div className="h-1 shrink-0" style={{ background: '#ebebeb' }}>
@@ -610,7 +627,7 @@ function LearnSession({ shortcuts, category, onComplete, onExit }) {
           {/* 단축키 카드 */}
           <div className="w-full rounded-3xl p-8 text-center transition-all duration-200 relative"
             style={{
-              background: isDone ? 'linear-gradient(135deg,#f0fdf4,#dcfce7)' : feedback?.type === 'incorrect' ? 'linear-gradient(135deg,#fff5f5,#fee2e2)' : 'white',
+              background: isDone ? 'linear-gradient(135deg,#f0fdf4,#dcfce7)' : feedback?.type === 'incorrect' ? 'linear-gradient(135deg,#fff5f5,#fee2e2)' : 'var(--sk-bg-card)',
               border: `2px solid ${isDone ? '#86efac' : feedback?.type === 'incorrect' ? '#fca5a5' : '#ebebeb'}`,
               boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
             }}>
@@ -624,8 +641,8 @@ function LearnSession({ shortcuts, category, onComplete, onExit }) {
               {favoriteIds.has(current.id) ? '♥' : '♡'}
             </button>
             <div className="text-5xl mb-3">{current.emoji}</div>
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{current.category}</p>
-            <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight mb-5">{current.description}</h2>
+            <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--sk-text-4)' }}>{current.category}</p>
+            <h2 className="text-2xl font-extrabold tracking-tight mb-5" style={{ color: 'var(--sk-text)' }}>{current.description}</h2>
             <ShortcutKeys display={current.display} size="lg" />
           </div>
 
@@ -696,6 +713,7 @@ function LearnResult({ category, results, onRetry, onHome }) {
       perfect.map((r) => r.shortcut.id),
     );
     if (perfect.length > 0) updateMastered(perfect.map((r) => r.shortcut.id));
+    recordActivity(results.length);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const grade =
@@ -705,15 +723,15 @@ function LearnResult({ category, results, onRetry, onHome }) {
     { emoji: '📚', text: '다시 한번 해봐요' };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#fafafa' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: 'var(--sk-bg)' }}>
       <header className="border-b px-6 py-3 flex items-center justify-between"
-        style={{ borderColor: '#ebebeb', background: 'white' }}>
+        style={{ borderColor: 'var(--sk-border)', background: 'var(--sk-bg-card)' }}>
         <div className="flex items-center gap-3">
-          <Link href="/" className="font-bold text-gray-900 text-sm">⌨️ ShortcutKit</Link>
-          <span className="text-gray-200 select-none">|</span>
-          <button onClick={onHome} className="text-sm text-gray-400 hover:text-gray-700 transition-colors">← 학습 홈</button>
+          <Link href="/" className="font-bold text-sm" style={{ color: 'var(--sk-text)' }}>⌨️ ShortcutKit</Link>
+          <span className="select-none" style={{ color: 'var(--sk-border)' }}>|</span>
+          <button onClick={onHome} className="text-sm transition-colors" style={{ color: 'var(--sk-text-4)' }}>← 학습 홈</button>
         </div>
-        <span className="text-sm font-semibold text-gray-700">{category} 완료</span>
+        <span className="text-sm font-semibold" style={{ color: 'var(--sk-text-2)' }}>{category} 완료</span>
         <div />
       </header>
 

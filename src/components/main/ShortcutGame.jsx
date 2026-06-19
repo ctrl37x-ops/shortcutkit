@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { SHORTCUTS, CATEGORIES } from '@/lib/shortcuts';
+import { getStreak, recordActivity } from '@/lib/stats';
 
 const ROUND_SIZE = 10;
 const WRONG_KEY = 'shortcutkit_wrong';
@@ -112,6 +113,8 @@ function ShortcutKeys({ display, size = 'md' }) {
   );
 }
 
+const TIMER_SECONDS = 60;
+
 export default function ShortcutGame() {
   const [gameStatus, setGameStatus] = useState('idle');
   const [shortcuts, setShortcuts] = useState([]);
@@ -127,6 +130,10 @@ export default function ShortcutGame() {
   const [wrongIds, setWrongIds] = useState(new Set());
   const [favoriteIds, setFavoriteIds] = useState(new Set());
   const [koreanWarning, setKoreanWarning] = useState(false);
+  const [timerMode, setTimerMode] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
+  const [activityStreak, setActivityStreak] = useState(null);
+  const timerRef = useRef(null);
 
   const startGame = useCallback(
     (customShortcuts = null) => {
@@ -149,6 +156,8 @@ export default function ShortcutGame() {
       setAnsweredCount(0);
       setFeedback(null);
       setResults([]);
+      setTimeLeft(TIMER_SECONDS);
+      setKoreanWarning(false);
       setGameStatus('playing');
     },
     [selectedCategory, quizSize]
@@ -172,7 +181,8 @@ export default function ShortcutGame() {
       const isCorrect = matchKeys(e, current.keys);
       const pressedDisplay = formatPressedKeys(e);
       const nextIndex = currentIndex + 1;
-      const isLast = nextIndex >= shortcuts.length;
+      // 타이머 모드: 무한 순환 (끝에 달하면 다시 셔플), 일반 모드: 마지막 도달 시 종료
+      const isLast = !timerMode && nextIndex >= shortcuts.length;
 
       setAnsweredCount((prev) => prev + 1);
       setResults((prev) => [...prev, { shortcut: current, correct: isCorrect, pressedDisplay }]);
@@ -186,7 +196,7 @@ export default function ShortcutGame() {
         setTimeout(() => {
           setFeedback(null);
           if (isLast) setGameStatus('result');
-          else setCurrentIndex(nextIndex);
+          else setCurrentIndex(timerMode ? (nextIndex >= shortcuts.length ? 0 : nextIndex) : nextIndex);
         }, 650);
       } else {
         setStreak(0);
@@ -194,7 +204,7 @@ export default function ShortcutGame() {
         setTimeout(() => {
           setFeedback(null);
           if (isLast) setGameStatus('result');
-          else setCurrentIndex(nextIndex);
+          else setCurrentIndex(timerMode ? (nextIndex >= shortcuts.length ? 0 : nextIndex) : nextIndex);
         }, 1900);
       }
     },
@@ -207,13 +217,30 @@ export default function ShortcutGame() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [gameStatus, handleKeyDown]);
 
-  // idle로 돌아올 때 오답/즐겨찾기 목록 갱신
+  // idle로 돌아올 때 오답/즐겨찾기/스트릭 갱신
   useEffect(() => {
     if (gameStatus === 'idle') {
       setWrongIds(getWrongIds());
       setFavoriteIds(getFavoriteIds());
+      setActivityStreak(getStreak());
     }
   }, [gameStatus]);
+
+  // 타이머 모드 카운트다운
+  useEffect(() => {
+    if (gameStatus !== 'playing' || !timerMode) return;
+    timerRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current);
+          setGameStatus('result');
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timerRef.current);
+  }, [gameStatus, timerMode]);
 
   // 결과 화면 진입 시 오답/정답 localStorage 저장
   useEffect(() => {
@@ -222,6 +249,7 @@ export default function ShortcutGame() {
     const correctInRound = results.filter((r) => r.correct).map((r) => r.shortcut.id);
     updateWrong(wrongInRound, correctInRound);
     setWrongIds(getWrongIds());
+    recordActivity(results.filter((r) => r.correct).length);
   }, [gameStatus, results]);
 
   const accuracy = answeredCount > 0 ? Math.round((correctCount / answeredCount) * 100) : null;
@@ -229,20 +257,31 @@ export default function ShortcutGame() {
   // ── 시작 화면 ────────────────────────────────────────────────────────
   if (gameStatus === 'idle') {
     return (
-      <div className="min-h-screen flex flex-col" style={{ background: '#fafafa' }}>
-        <header className="border-b px-6 py-3 flex items-center justify-between" style={{ borderColor: '#ebebeb', background: 'white' }}>
-          <Link href="/" className="font-bold text-gray-900 text-sm">⌨️ ShortcutKit</Link>
-          <Link href="/learn" className="text-sm text-gray-400 hover:text-gray-700 transition-colors">학습하기</Link>
+      <div className="min-h-screen flex flex-col" style={{ background: 'var(--sk-bg)' }}>
+        <header className="border-b px-6 py-3 flex items-center justify-between"
+          style={{ borderColor: 'var(--sk-border)', background: 'var(--sk-bg-card)' }}>
+          <Link href="/" className="font-bold text-sm" style={{ color: 'var(--sk-text)' }}>⌨️ ShortcutKit</Link>
+          <div className="flex items-center gap-4">
+            <Link href="/cheatsheet" className="text-sm" style={{ color: 'var(--sk-text-4)' }}>목록</Link>
+            <Link href="/learn" className="text-sm transition-colors" style={{ color: 'var(--sk-text-4)' }}>학습하기</Link>
+          </div>
         </header>
 
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="w-full max-w-md text-center flex flex-col items-center gap-8">
             <div>
               <div className="text-7xl mb-5">⌨️</div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">연습하기</h1>
-              <p className="text-gray-500 text-sm leading-relaxed">
+              <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--sk-text)' }}>연습하기</h1>
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--sk-text-3)' }}>
                 동작 설명이 나오면 해당 단축키를 실제로 눌러보세요
               </p>
+              {/* 스트릭 */}
+              {activityStreak?.streak > 0 && (
+                <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm"
+                  style={{ background: 'var(--sk-bg-card)', border: '1.5px solid var(--sk-border)', color: 'var(--sk-text-3)' }}>
+                  🔥 {activityStreak.streak}일 연속 · 오늘 {activityStreak.todayCount}개
+                </div>
+              )}
             </div>
 
             <div className="w-full">
@@ -328,7 +367,31 @@ export default function ShortcutGame() {
               );
             })()}
 
-            <p className="text-xs text-gray-400">무작위 출제 · 연속 정답 시 보너스</p>
+            {/* 타이머 모드 */}
+            <div className="w-full">
+              <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--sk-text-4)' }}>게임 모드</p>
+              <div className="flex gap-2 justify-center">
+                {[{ id: false, label: '일반', icon: '🎯' }, { id: true, label: `타이머 ${TIMER_SECONDS}초`, icon: '⏱' }].map((m) => (
+                  <button
+                    key={String(m.id)}
+                    onClick={() => setTimerMode(m.id)}
+                    className="flex-1 py-2.5 rounded-full text-sm font-medium transition-all duration-150"
+                    style={timerMode === m.id
+                      ? { background: '#2563eb', color: 'white', boxShadow: '0 2px 8px rgba(37,99,235,0.3)' }
+                      : { background: 'var(--sk-bg-card)', color: 'var(--sk-text-3)', border: '1.5px solid var(--sk-border)' }}
+                  >
+                    {m.icon} {m.label}
+                  </button>
+                ))}
+              </div>
+              {timerMode && (
+                <p className="text-xs mt-2" style={{ color: 'var(--sk-text-4)' }}>
+                  제한 시간 안에 최대한 많이 맞춰보세요
+                </p>
+              )}
+            </div>
+
+            <p className="text-xs" style={{ color: 'var(--sk-text-4)' }}>무작위 출제 · 연속 정답 시 보너스</p>
           </div>
         </div>
       </div>
@@ -337,7 +400,9 @@ export default function ShortcutGame() {
 
   // ── 결과 화면 ────────────────────────────────────────────────────────
   if (gameStatus === 'result') {
-    const finalAccuracy = Math.round((correctCount / shortcuts.length) * 100);
+    const finalAccuracy = timerMode
+      ? Math.round((correctCount / Math.max(answeredCount, 1)) * 100)
+      : Math.round((correctCount / shortcuts.length) * 100);
     const grade =
       finalAccuracy >= 90 ? { emoji: '🏆', text: '완벽해요!' } :
       finalAccuracy >= 70 ? { emoji: '👍', text: '잘했어요!' } :
@@ -346,10 +411,11 @@ export default function ShortcutGame() {
     const wrongItems = results.filter((r) => !r.correct);
 
     return (
-      <div className="min-h-screen flex flex-col" style={{ background: '#fafafa' }}>
-        <header className="border-b px-6 py-3 flex items-center justify-between" style={{ borderColor: '#ebebeb', background: 'white' }}>
-          <Link href="/" className="font-bold text-gray-900 text-sm">⌨️ ShortcutKit</Link>
-          <Link href="/learn" className="text-sm text-gray-400 hover:text-gray-700 transition-colors">학습하기</Link>
+      <div className="min-h-screen flex flex-col" style={{ background: 'var(--sk-bg)' }}>
+        <header className="border-b px-6 py-3 flex items-center justify-between"
+          style={{ borderColor: 'var(--sk-border)', background: 'var(--sk-bg-card)' }}>
+          <Link href="/" className="font-bold text-sm" style={{ color: 'var(--sk-text)' }}>⌨️ ShortcutKit</Link>
+          <Link href="/learn" className="text-sm transition-colors" style={{ color: 'var(--sk-text-4)' }}>학습하기</Link>
         </header>
 
         <div className="flex-1 overflow-y-auto py-10 px-6">
@@ -365,16 +431,16 @@ export default function ShortcutGame() {
             <div className="grid grid-cols-3 gap-3 w-full">
               {[
                 { label: '점수', value: score.toLocaleString() },
-                { label: '정답', value: `${correctCount}/${shortcuts.length}` },
+                { label: timerMode ? `${TIMER_SECONDS}초` : '정답', value: timerMode ? `${correctCount}개` : `${correctCount}/${shortcuts.length}` },
                 { label: '정확도', value: `${finalAccuracy}%` },
               ].map((s) => (
                 <div
                   key={s.label}
                   className="rounded-2xl p-4 text-center"
-                  style={{ background: 'white', border: '1.5px solid #ebebeb', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
+                  style={{ background: 'var(--sk-bg-card)', border: '1.5px solid var(--sk-border)', boxShadow: '0 1px 4px var(--sk-shadow)' }}
                 >
-                  <div className="text-xl font-bold text-gray-900">{s.value}</div>
-                  <div className="text-xs text-gray-400 mt-0.5">{s.label}</div>
+                  <div className="text-xl font-bold" style={{ color: 'var(--sk-text)' }}>{s.value}</div>
+                  <div className="text-xs mt-0.5" style={{ color: 'var(--sk-text-4)' }}>{s.label}</div>
                 </div>
               ))}
             </div>
@@ -466,23 +532,28 @@ export default function ShortcutGame() {
 
   // ── 게임 화면 ────────────────────────────────────────────────────────
   const current = shortcuts[currentIndex];
-  const progress = (currentIndex / shortcuts.length) * 100;
+  const progress = timerMode
+    ? ((TIMER_SECONDS - timeLeft) / TIMER_SECONDS) * 100
+    : (currentIndex / shortcuts.length) * 100;
 
   return (
-    <div className="min-h-screen flex flex-col select-none" style={{ background: '#fafafa' }}>
+    <div className="min-h-screen flex flex-col select-none" style={{ background: 'var(--sk-bg)' }}>
       {/* 헤더 */}
       <header className="border-b px-6 py-3 flex items-center justify-between shrink-0"
-        style={{ borderColor: '#ebebeb', background: 'white' }}>
-        <Link href="/" className="font-bold text-gray-900 text-sm">⌨️ ShortcutKit</Link>
+        style={{ borderColor: 'var(--sk-border)', background: 'var(--sk-bg-card)' }}>
+        <Link href="/" className="font-bold text-sm" style={{ color: 'var(--sk-text)' }}>⌨️ ShortcutKit</Link>
         <div className="flex items-center gap-5 text-sm">
-          <Link href="/learn" className="text-gray-400 hover:text-gray-700 transition-colors">학습하기</Link>
-          <div className="flex items-center gap-4 text-gray-500">
-            <span>점수 <strong className="text-gray-900">{score.toLocaleString()}</strong></span>
-            <span>
-              연속 <strong className="text-gray-900">{streak}{streak >= 3 ? ' 🔥' : ''}</strong>
+          {timerMode && (
+            <span className="font-bold tabular-nums text-base"
+              style={{ color: timeLeft <= 10 ? '#ef4444' : '#2563eb', minWidth: '2.5rem', textAlign: 'right' }}>
+              ⏱ {timeLeft}s
             </span>
+          )}
+          <div className="flex items-center gap-4" style={{ color: 'var(--sk-text-3)' }}>
+            <span>점수 <strong style={{ color: 'var(--sk-text)' }}>{score.toLocaleString()}</strong></span>
+            <span>연속 <strong style={{ color: 'var(--sk-text)' }}>{streak}{streak >= 3 ? ' 🔥' : ''}</strong></span>
             {accuracy !== null && (
-              <span>정확도 <strong className="text-gray-900">{accuracy}%</strong></span>
+              <span>정확도 <strong style={{ color: 'var(--sk-text)' }}>{accuracy}%</strong></span>
             )}
           </div>
         </div>
@@ -499,9 +570,11 @@ export default function ShortcutGame() {
         />
       </div>
 
-      {/* 문제 번호 */}
+      {/* 문제 번호 / 타이머 진행 */}
       <div className="text-center py-2 shrink-0">
-        <span className="text-xs text-gray-400 font-medium">{currentIndex + 1} / {shortcuts.length}</span>
+        <span className="text-xs font-medium" style={{ color: 'var(--sk-text-4)' }}>
+          {timerMode ? `${correctCount}개 정답` : `${currentIndex + 1} / ${shortcuts.length}`}
+        </span>
       </div>
 
       {/* 메인 */}
