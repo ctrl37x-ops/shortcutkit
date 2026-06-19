@@ -117,7 +117,43 @@ export const SHORTCUTS = [
 
   // ── 브라우저 (추가) ───────────────────────────────────────────────────────
   // ⌘⇧R: 페이지 즉시 새로고침으로 browserBlocked
-  { id: 81, description: "강제 새로고침",   category: "브라우저", emoji: "🔃", keys: { meta: true, shift: true, alt: false, ctrl: false, key: "r" }, display: "⌘⇧R", browserBlocked: true },
+  { id: 81,  description: "강제 새로고침",      category: "브라우저", emoji: "🔃", keys: { meta: true,  shift: true,  alt: false, ctrl: false, key: "r" }, display: "⌘⇧R",    browserBlocked: true },
+  // DevTools 계열: Chrome이 인터셉트 → browserBlocked
+  { id: 95,  description: "개발자 도구 열기",   category: "브라우저", emoji: "🛠️", keys: { meta: true,  shift: false, alt: true,  ctrl: false, key: "i" }, display: "⌘⌥I",    browserBlocked: true },
+  { id: 96,  description: "JavaScript 콘솔",   category: "브라우저", emoji: "💻", keys: { meta: true,  shift: false, alt: true,  ctrl: false, key: "j" }, display: "⌘⌥J",    browserBlocked: true },
+  { id: 97,  description: "페이지 소스 보기",   category: "브라우저", emoji: "📄", keys: { meta: true,  shift: false, alt: true,  ctrl: false, key: "u" }, display: "⌘⌥U",    browserBlocked: true },
+  { id: 98,  description: "요소 검사",          category: "브라우저", emoji: "🔎", keys: { meta: true,  shift: false, alt: true,  ctrl: false, key: "c" }, display: "⌘⌥C",    browserBlocked: true },
+  { id: 99,  description: "북마크 관리자",      category: "브라우저", emoji: "📚", keys: { meta: true,  shift: false, alt: true,  ctrl: false, key: "b" }, display: "⌘⌥B",    browserBlocked: true },
+
+  // ── 텍스트 편집 (추가) ────────────────────────────────────────────────────
+  { id: 100, description: "서식 없이 붙여넣기", category: "텍스트 편집", emoji: "📋", keys: { meta: true, shift: true,  alt: false, ctrl: false, key: "v" }, display: "⌘⇧V" },
+  { id: 101, description: "주석 토글",          category: "텍스트 편집", emoji: "💬", keys: { meta: true, shift: false, alt: false, ctrl: false, key: "/" }, display: "⌘/" },
+
+  // ── Finder (추가) ─────────────────────────────────────────────────────────
+  { id: 102, description: "응용 프로그램 폴더 열기", category: "Finder", emoji: "🧩", keys: { meta: true, shift: true,  alt: false, ctrl: false, key: "a" }, display: "⌘⇧A" },
+  { id: 103, description: "최근 사용 폴더 열기",    category: "Finder", emoji: "🕒", keys: { meta: true, shift: true,  alt: false, ctrl: false, key: "f" }, display: "⌘⇧F" },
+  { id: 104, description: "iCloud Drive 열기",     category: "Finder", emoji: "☁️", keys: { meta: true, shift: true,  alt: false, ctrl: false, key: "i" }, display: "⌘⇧I" },
+  { id: 105, description: "네트워크 폴더 열기",    category: "Finder", emoji: "🌐", keys: { meta: true, shift: true,  alt: false, ctrl: false, key: "k" }, display: "⌘⇧K" },
+  // ⌘⌥V: Finder에서 복사한 항목을 잘라내기처럼 이동
+  { id: 106, description: "이 위치로 이동",         category: "Finder", emoji: "🚚", keys: { meta: true, shift: false, alt: true,  ctrl: false, key: "v" }, display: "⌘⌥V" },
+
+  // ── 창/앱 관리 (추가) ────────────────────────────────────────────────────
+  { id: 92,  description: "전체 화면 전환",       category: "창/앱 관리", emoji: "⛶",  keys: { meta: true, shift: false, alt: false, ctrl: true,  key: "f" }, display: "⌘⌃F", browserBlocked: true },
+  { id: 93,  description: "다른 앱 모두 숨기기",  category: "창/앱 관리", emoji: "🙈", keys: { meta: true, shift: false, alt: true,  ctrl: false, key: "h" }, display: "⌘⌥H", browserBlocked: true },
+  { id: 94,  description: "현재 앱 창 모두 닫기", category: "창/앱 관리", emoji: "❎", keys: { meta: true, shift: false, alt: true,  ctrl: false, key: "w" }, display: "⌘⌥W", browserBlocked: true },
+
+  // ── 시스템 ────────────────────────────────────────────────────────────────
+  // 모두 macOS OS 레벨 인터셉트 → keydown 미발생
+  { id: 82,  description: "Spotlight 검색",          category: "시스템", emoji: "🔦", keys: { meta: true,  shift: false, alt: false, ctrl: false, key: " "         }, display: "⌘Space",  browserBlocked: true },
+  { id: 83,  description: "Finder에서 검색",         category: "시스템", emoji: "📁", keys: { meta: true,  shift: false, alt: true,  ctrl: false, key: " "         }, display: "⌘⌥Space", browserBlocked: true },
+  { id: 84,  description: "이모지 및 기호 뷰어",    category: "시스템", emoji: "😊", keys: { meta: true,  shift: false, alt: false, ctrl: true,  key: " "         }, display: "⌘⌃Space", browserBlocked: true },
+  { id: 85,  description: "화면 잠금",              category: "시스템", emoji: "🔒", keys: { meta: true,  shift: false, alt: false, ctrl: true,  key: "q"         }, display: "⌘⌃Q",    browserBlocked: true },
+  { id: 86,  description: "Dock 보이기/숨기기",     category: "시스템", emoji: "🪄", keys: { meta: true,  shift: false, alt: true,  ctrl: false, key: "d"         }, display: "⌘⌥D",    browserBlocked: true },
+  { id: 87,  description: "강제 종료 대화상자",     category: "시스템", emoji: "💥", keys: { meta: true,  shift: false, alt: true,  ctrl: false, key: "escape"    }, display: "⌘⌥⎋",    browserBlocked: true },
+  { id: 88,  description: "Mission Control",        category: "시스템", emoji: "🗂️", keys: { meta: false, shift: false, alt: false, ctrl: true,  key: "arrowup"   }, display: "⌃↑",     browserBlocked: true },
+  { id: 89,  description: "현재 앱의 모든 창 보기", category: "시스템", emoji: "🪟", keys: { meta: false, shift: false, alt: false, ctrl: true,  key: "arrowdown" }, display: "⌃↓",     browserBlocked: true },
+  { id: 90,  description: "다음 Space로 이동",      category: "시스템", emoji: "➡️", keys: { meta: false, shift: false, alt: false, ctrl: true,  key: "arrowright"}, display: "⌃→",     browserBlocked: true },
+  { id: 91,  description: "이전 Space로 이동",      category: "시스템", emoji: "⬅️", keys: { meta: false, shift: false, alt: false, ctrl: true,  key: "arrowleft" }, display: "⌃←",     browserBlocked: true },
 ];
 
 export const CATEGORIES = ["전체", ...new Set(SHORTCUTS.map((s) => s.category))];
