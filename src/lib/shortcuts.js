@@ -105,7 +105,7 @@ export const SHORTCUTS = [
   { id: 72, description: "정보 가져오기",   category: "Finder", emoji: "ℹ️", keys: { meta: true, shift: false, alt: false, ctrl: false, key: "i"         }, display: "⌘I"   },
   // ⌘⌫: 텍스트 편집(id:44)과 동일 키이지만 Finder 맥락에서는 휴지통 이동
   { id: 73, description: "휴지통으로 이동", category: "Finder", emoji: "🗑️", keys: { meta: true, shift: false, alt: false, ctrl: false, key: "backspace" }, display: "⌘⌫"  },
-  { id: 74, description: "휴지통 비우기",   category: "Finder", emoji: "🔴", keys: { meta: true, shift: true,  alt: false, ctrl: false, key: "backspace" }, display: "⌘⇧⌫", browserBlocked: true },
+  { id: 74, description: "휴지통 비우기",   category: "Finder", emoji: "🔴", keys: { meta: true, shift: true,  alt: false, ctrl: false, key: "backspace" }, display: "⌘⇧⌫" },
   // ⌘↑/↓: 커서/선택(id:35/36)과 동일 키이지만 Finder 맥락에서 폴더 탐색
   { id: 75, description: "상위 폴더 열기",  category: "Finder", emoji: "📁", keys: { meta: true, shift: false, alt: false, ctrl: false, key: "arrowup"   }, display: "⌘↑"  },
   { id: 76, description: "선택 항목 열기",  category: "Finder", emoji: "📂", keys: { meta: true, shift: false, alt: false, ctrl: false, key: "arrowdown" }, display: "⌘↓"  },

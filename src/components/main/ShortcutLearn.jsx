@@ -78,7 +78,9 @@ function formatPressedKeys(event) {
   if (event.ctrlKey) parts.push('⌃');
   if (event.altKey) parts.push('⌥');
   if (event.shiftKey) parts.push('⇧');
-  const k = normalizeKey(event.key);
+  let k = normalizeKey(event.key);
+  // shift 조합 시 e.key가 조합 문자(예:'>')이면 물리 키 레이블('.')로 역변환
+  if (event.shiftKey && SHIFT_TO_BASE[k]) k = SHIFT_TO_BASE[k];
   const key = KEY_LABEL[k] ?? (k.length === 1 ? k.toUpperCase() : k);
   parts.push(key);
   return parts.join('');
@@ -238,6 +240,8 @@ const CATEGORY_META = {
   '텍스트 편집': { emoji: '✏️', desc: '서식, 링크, 찾기' },
   '커서/선택':   { emoji: '↔️', desc: '커서 이동과 텍스트 선택' },
   'Finder':      { emoji: '📁', desc: 'macOS 파인더 파일 관리' },
+  '스크린샷':    { emoji: '📸', desc: '화면 캡처 및 클립보드 저장' },
+  '시스템':      { emoji: '⚙️', desc: 'Spotlight·잠금·Mission Control·Space 전환' },
 };
 
 // ── 홈 화면 ──────────────────────────────────────────────────────────────

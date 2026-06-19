@@ -48,13 +48,23 @@ const KEY_LABEL = {
   Backspace: '⌫', Delete: '⌦', Enter: '↩', Escape: '⎋', Tab: '⇥',
 };
 
+// shift 조합 시 생성되는 문자 → 물리 키 레이블 역변환
+const SHIFT_CHAR_TO_BASE = {
+  '{': '[', '}': ']', '>': '.', '<': ',', '?': '/', ':': ';',
+  '"': "'", '|': '\\', '_': '-', '+': '=', '~': '`',
+  '!': '1', '@': '2', '#': '3', '$': '4', '%': '5',
+  '^': '6', '&': '7', '*': '8', '(': '9', ')': '0',
+};
+
 function formatPressedKeys(event) {
   const parts = [];
   if (event.metaKey) parts.push('⌘');
   if (event.ctrlKey) parts.push('⌃');
   if (event.altKey) parts.push('⌥');
   if (event.shiftKey) parts.push('⇧');
-  const k = normalizeKey(event.key);
+  let k = normalizeKey(event.key);
+  // shift 조합 시 e.key가 조합 문자(예:'>')이면 물리 키 레이블('.')로 역변환
+  if (event.shiftKey && SHIFT_CHAR_TO_BASE[k]) k = SHIFT_CHAR_TO_BASE[k];
   const key = KEY_LABEL[k] ?? (k.length === 1 ? k.toUpperCase() : k);
   parts.push(key);
   return parts.join('');
