@@ -205,7 +205,7 @@ export default function ShortcutGame() {
           setFeedback(null);
           if (isLast) setGameStatus('result');
           else setCurrentIndex(timerMode ? (nextIndex >= shortcuts.length ? 0 : nextIndex) : nextIndex);
-        }, 1900);
+        }, 3000);
       }
     },
     [gameStatus, feedback, shortcuts, currentIndex, streak, timerMode]
@@ -637,7 +637,7 @@ export default function ShortcutGame() {
                       setFeedback(null);
                       if (isLast) setGameStatus('result');
                       else setCurrentIndex(timerMode ? (nextIndex >= shortcuts.length ? 0 : nextIndex) : nextIndex);
-                    }, 1900);
+                    }, 3000);
                   }}
                   className="px-5 py-2.5 rounded-xl font-semibold text-white text-sm transition-all hover:-translate-y-0.5"
                   style={{ background: 'linear-gradient(135deg, #ef4444, #dc2626)', boxShadow: '0 2px 8px rgba(239,68,68,0.3)' }}
