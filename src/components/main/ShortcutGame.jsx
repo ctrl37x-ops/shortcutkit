@@ -598,25 +598,53 @@ export default function ShortcutGame() {
 
           {/* browserBlocked: 스킵 버튼 */}
           {current.browserBlocked && !feedback && (
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col items-center gap-3">
               <p className="text-xs text-amber-500 font-medium">
-                ⚠️ 이 단축키는 macOS가 직접 처리해 브라우저에서 입력할 수 없어요
+                ⚠️ 직접 입력할 수 없는 단축키예요 — 알고 계신가요?
               </p>
-              <button
-                onClick={() => {
-                  const nextIndex = currentIndex + 1;
-                  const isLast = !timerMode && nextIndex >= shortcuts.length;
-                  setResults((prev) => [...prev, { shortcut: current, correct: true, pressedDisplay: '(건너뜀)' }]);
-                  setAnsweredCount((prev) => prev + 1);
-                  setCorrectCount((prev) => prev + 1);
-                  if (isLast) setGameStatus('result');
-                  else setCurrentIndex(timerMode ? (nextIndex >= shortcuts.length ? 0 : nextIndex) : nextIndex);
-                }}
-                className="px-6 py-2 rounded-xl font-semibold text-white text-sm transition-all hover:-translate-y-0.5"
-                style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', boxShadow: '0 2px 8px rgba(245,158,11,0.3)' }}
-              >
-                건너뛰기 →
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    const nextIndex = currentIndex + 1;
+                    const isLast = !timerMode && nextIndex >= shortcuts.length;
+                    const multiplier = streak >= 4 ? 3 : streak >= 2 ? 2 : 1;
+                    setScore((prev) => prev + 100 * multiplier);
+                    setStreak((prev) => prev + 1);
+                    setCorrectCount((prev) => prev + 1);
+                    setAnsweredCount((prev) => prev + 1);
+                    setResults((prev) => [...prev, { shortcut: current, correct: true, pressedDisplay: '(인식)' }]);
+                    setFeedback({ type: 'correct', pressedDisplay: '알고 있어요 ✓' });
+                    setTimeout(() => {
+                      setFeedback(null);
+                      if (isLast) setGameStatus('result');
+                      else setCurrentIndex(timerMode ? (nextIndex >= shortcuts.length ? 0 : nextIndex) : nextIndex);
+                    }, 650);
+                  }}
+                  className="px-5 py-2.5 rounded-xl font-semibold text-white text-sm transition-all hover:-translate-y-0.5"
+                  style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)', boxShadow: '0 2px 8px rgba(34,197,94,0.3)' }}
+                >
+                  ✓ 알아요
+                </button>
+                <button
+                  onClick={() => {
+                    const nextIndex = currentIndex + 1;
+                    const isLast = !timerMode && nextIndex >= shortcuts.length;
+                    setStreak(0);
+                    setAnsweredCount((prev) => prev + 1);
+                    setResults((prev) => [...prev, { shortcut: current, correct: false, pressedDisplay: '(인식)' }]);
+                    setFeedback({ type: 'incorrect', pressedDisplay: '몰라요 ✗' });
+                    setTimeout(() => {
+                      setFeedback(null);
+                      if (isLast) setGameStatus('result');
+                      else setCurrentIndex(timerMode ? (nextIndex >= shortcuts.length ? 0 : nextIndex) : nextIndex);
+                    }, 1900);
+                  }}
+                  className="px-5 py-2.5 rounded-xl font-semibold text-white text-sm transition-all hover:-translate-y-0.5"
+                  style={{ background: 'linear-gradient(135deg, #ef4444, #dc2626)', boxShadow: '0 2px 8px rgba(239,68,68,0.3)' }}
+                >
+                  ✗ 몰라요
+                </button>
+              </div>
             </div>
           )}
 

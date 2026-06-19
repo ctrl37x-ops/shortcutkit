@@ -628,8 +628,8 @@ function LearnSession({ shortcuts, category, onComplete, onExit }) {
           {/* 단축키 카드 */}
           <div className="w-full rounded-3xl p-8 text-center transition-all duration-200 relative"
             style={{
-              background: isDone ? 'linear-gradient(135deg,#f0fdf4,#dcfce7)' : feedback?.type === 'incorrect' ? 'linear-gradient(135deg,#fff5f5,#fee2e2)' : 'var(--sk-bg-card)',
-              border: `2px solid ${isDone ? '#86efac' : feedback?.type === 'incorrect' ? '#fca5a5' : 'var(--sk-border)'}`,
+              background: (isDone || feedback?.type === 'correct') ? 'linear-gradient(135deg,#f0fdf4,#dcfce7)' : feedback?.type === 'incorrect' ? 'linear-gradient(135deg,#fff5f5,#fee2e2)' : 'var(--sk-bg-card)',
+              border: `2px solid ${(isDone || feedback?.type === 'correct') ? '#86efac' : feedback?.type === 'incorrect' ? '#fca5a5' : 'var(--sk-border)'}`,
               boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
             }}>
             {/* 즐겨찾기 버튼 */}
@@ -661,7 +661,13 @@ function LearnSession({ shortcuts, category, onComplete, onExit }) {
           {/* 상태 메시지 */}
           <div className="h-7 flex items-center justify-center">
             {current.browserBlocked ? (
-              <p className="text-amber-500 text-xs font-medium">⚠️ 브라우저에서 직접 입력할 수 없는 단축키예요</p>
+              feedback?.type === 'correct' ? (
+                <p className="text-green-500 font-semibold text-sm">✓ 알고 계시는군요!</p>
+              ) : feedback?.type === 'incorrect' ? (
+                <p className="text-red-400 font-semibold text-sm">✗ 키 위치를 확인해봐요</p>
+              ) : (
+                <p className="text-amber-500 text-xs font-medium">⌨️ 이 단축키를 알고 계신가요?</p>
+              )
             ) : isDone ? (
               <p className="text-green-600 font-bold text-sm">✓ 완료! 다음으로 이동 중…</p>
             ) : feedback?.type === 'correct' ? (
@@ -685,8 +691,35 @@ function LearnSession({ shortcuts, category, onComplete, onExit }) {
             </div>
           )}
 
-          {/* 건너뛰기 버튼 (모든 단축키, isDone 제외) */}
-          {!isDone && (
+          {/* 인식 확인 버튼 (browserBlocked 전용) */}
+          {current.browserBlocked && !feedback && (
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setFeedback({ type: 'correct', pressedDisplay: '(인식)' });
+                  setTimeout(goNext, 700);
+                }}
+                className="px-6 py-2.5 rounded-xl font-semibold text-white text-sm transition-all hover:-translate-y-0.5"
+                style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)', boxShadow: '0 2px 8px rgba(34,197,94,0.3)' }}
+              >
+                ✓ 알고 있어요
+              </button>
+              <button
+                onClick={() => {
+                  errorsRef.current[current.id] = (errorsRef.current[current.id] ?? 0) + 1;
+                  setFeedback({ type: 'incorrect', pressedDisplay: '(인식)' });
+                  setTimeout(() => setFeedback(null), 1900);
+                }}
+                className="px-6 py-2.5 rounded-xl font-semibold text-white text-sm transition-all hover:-translate-y-0.5"
+                style={{ background: 'linear-gradient(135deg, #ef4444, #dc2626)', boxShadow: '0 2px 8px rgba(239,68,68,0.3)' }}
+              >
+                ✗ 모르겠어요
+              </button>
+            </div>
+          )}
+
+          {/* 건너뛰기 버튼 (non-blocked, isDone 제외) */}
+          {!current.browserBlocked && !isDone && (
             <button
               onClick={goNext}
               className="text-xs transition-colors py-1 px-3"
