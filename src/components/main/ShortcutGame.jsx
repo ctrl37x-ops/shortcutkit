@@ -6,6 +6,7 @@ import { SHORTCUTS, CATEGORIES } from '@/lib/shortcuts';
 
 const ROUND_SIZE = 10;
 const WRONG_KEY = 'shortcutkit_wrong';
+const FAVORITES_KEY = 'shortcutkit_favorites';
 
 function getWrongIds() {
   try { return new Set(JSON.parse(localStorage.getItem(WRONG_KEY) ?? '[]')); }
@@ -17,6 +18,11 @@ function updateWrong(addIds, removeIds) {
   addIds.forEach((id) => current.add(id));
   removeIds.forEach((id) => current.delete(id));
   localStorage.setItem(WRONG_KEY, JSON.stringify([...current]));
+}
+
+function getFavoriteIds() {
+  try { return new Set(JSON.parse(localStorage.getItem(FAVORITES_KEY) ?? '[]')); }
+  catch { return new Set(); }
 }
 
 function shuffle(arr) {
@@ -112,6 +118,7 @@ export default function ShortcutGame() {
   const [quizSize, setQuizSize] = useState(ROUND_SIZE);
   const [results, setResults] = useState([]);
   const [wrongIds, setWrongIds] = useState(new Set());
+  const [favoriteIds, setFavoriteIds] = useState(new Set());
 
   const startGame = useCallback(
     (customShortcuts = null) => {
@@ -187,10 +194,11 @@ export default function ShortcutGame() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [gameStatus, handleKeyDown]);
 
-  // idle로 돌아올 때 오답 목록 갱신
+  // idle로 돌아올 때 오답/즐겨찾기 목록 갱신
   useEffect(() => {
     if (gameStatus === 'idle') {
       setWrongIds(getWrongIds());
+      setFavoriteIds(getFavoriteIds());
     }
   }, [gameStatus]);
 
@@ -272,6 +280,7 @@ export default function ShortcutGame() {
 
             {(() => {
               const wrongShortcuts = SHORTCUTS.filter((s) => wrongIds.has(s.id));
+              const favShortcuts = SHORTCUTS.filter((s) => favoriteIds.has(s.id));
               return (
                 <div className="flex flex-col gap-3 w-full items-center">
                   <button
@@ -291,6 +300,15 @@ export default function ShortcutGame() {
                       style={{ background: 'linear-gradient(135deg, #ef4444, #dc2626)', boxShadow: '0 3px 12px rgba(239,68,68,0.3)' }}
                     >
                       📝 오답만 연습 ({wrongShortcuts.length}개)
+                    </button>
+                  )}
+                  {favShortcuts.length > 0 && (
+                    <button
+                      onClick={() => startGame(favShortcuts)}
+                      className="w-full py-3 rounded-xl font-semibold text-white transition-all hover:-translate-y-0.5"
+                      style={{ background: 'linear-gradient(135deg, #ec4899, #db2777)', boxShadow: '0 3px 12px rgba(236,72,153,0.3)' }}
+                    >
+                      ♥ 즐겨찾기만 연습 ({favShortcuts.length}개)
                     </button>
                   )}
                 </div>

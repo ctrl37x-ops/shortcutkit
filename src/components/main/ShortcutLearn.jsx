@@ -6,6 +6,8 @@ import { SHORTCUTS, CATEGORIES } from '@/lib/shortcuts';
 
 const REPS = 3;
 const WRONG_KEY = 'shortcutkit_wrong';
+const MASTERED_KEY = 'shortcutkit_mastered';
+const FAVORITES_KEY = 'shortcutkit_favorites';
 
 // ── 오답 노트 유틸 ───────────────────────────────────────────────────────
 
@@ -19,6 +21,31 @@ function updateWrong(addIds, removeIds) {
   addIds.forEach((id) => current.add(id));
   removeIds.forEach((id) => current.delete(id));
   localStorage.setItem(WRONG_KEY, JSON.stringify([...current]));
+}
+
+// ── 숙달 / 즐겨찾기 유틸 ───────────────────────────────────────────────
+
+function getMasteredIds() {
+  try { return new Set(JSON.parse(localStorage.getItem(MASTERED_KEY) ?? '[]')); }
+  catch { return new Set(); }
+}
+
+function updateMastered(addIds) {
+  const current = getMasteredIds();
+  addIds.forEach((id) => current.add(id));
+  localStorage.setItem(MASTERED_KEY, JSON.stringify([...current]));
+}
+
+function getFavoriteIds() {
+  try { return new Set(JSON.parse(localStorage.getItem(FAVORITES_KEY) ?? '[]')); }
+  catch { return new Set(); }
+}
+
+function toggleFavorite(id) {
+  const current = getFavoriteIds();
+  if (current.has(id)) current.delete(id);
+  else current.add(id);
+  localStorage.setItem(FAVORITES_KEY, JSON.stringify([...current]));
 }
 
 // ── 공통 유틸 ────────────────────────────────────────────────────────────
@@ -248,13 +275,28 @@ const CATEGORY_META = {
 
 function LearnHome({ onStart }) {
   const [wrongIds, setWrongIds] = useState(new Set());
+  const [masteredIds, setMasteredIds] = useState(new Set());
+  const [favoriteIds, setFavoriteIds] = useState(new Set());
+  const [search, setSearch] = useState('');
   const nonAll = CATEGORIES.filter((c) => c !== '전체');
 
   useEffect(() => {
     setWrongIds(getWrongIds());
+    setMasteredIds(getMasteredIds());
+    setFavoriteIds(getFavoriteIds());
   }, []);
 
   const wrongShortcuts = SHORTCUTS.filter((s) => wrongIds.has(s.id));
+  const favoriteShortcuts = SHORTCUTS.filter((s) => favoriteIds.has(s.id));
+  const q = search.trim().toLowerCase();
+  const searchResults = q
+    ? SHORTCUTS.filter(
+        (s) =>
+          s.description.toLowerCase().includes(q) ||
+          s.display.toLowerCase().includes(q) ||
+          s.category.toLowerCase().includes(q)
+      )
+    : null;
 
   return (
     <div className="min-h-screen" style={{ background: '#fafafa' }}>
@@ -274,92 +316,183 @@ function LearnHome({ onStart }) {
       </header>
 
       <div className="max-w-2xl mx-auto px-6 py-10">
-        <div className="mb-8">
+        <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-1">단축키 학습하기</h1>
           <p className="text-gray-500 text-sm">
             각 단축키를 <strong className="text-gray-700">{REPS}번</strong> 직접 입력하며 손에 익혀요
           </p>
         </div>
 
-        {/* 전체 + 랜덤 학습 */}
-        <div className="mb-6 flex flex-col gap-2.5">
-          <button onClick={() => onStart(SHORTCUTS, '전체')}
-            className="w-full p-5 rounded-2xl text-left transition-all hover:-translate-y-0.5 flex items-center justify-between group"
-            style={{ background: 'linear-gradient(135deg, rgba(37,99,235,0.07), rgba(79,70,229,0.04))', border: '1.5px solid rgba(37,99,235,0.18)', boxShadow: '0 2px 16px rgba(37,99,235,0.08)' }}>
-            <div>
-              <div className="font-bold text-gray-900 text-lg">⚡ 전체 학습</div>
-              <div className="text-sm text-gray-500 mt-0.5">모든 {SHORTCUTS.length}개 단축키 · 각 {REPS}회 입력</div>
-            </div>
-            <span className="text-blue-400 text-xl group-hover:translate-x-1 transition-transform">→</span>
-          </button>
-
-          {/* 오답 노트 */}
-          {wrongShortcuts.length > 0 && (
+        {/* 검색 */}
+        <div className="mb-6 relative">
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none text-sm">🔍</span>
+          <input
+            type="text"
+            placeholder="단축키 검색 (예: 복사, ⌘C, Finder)"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 pr-10 py-3 rounded-xl text-sm outline-none transition-all"
+            style={{ background: 'white', border: '1.5px solid #ebebeb', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
+            onFocus={(e) => { e.target.style.borderColor = '#bfdbfe'; e.target.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.08)'; }}
+            onBlur={(e) => { e.target.style.borderColor = '#ebebeb'; e.target.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}
+          />
+          {search && (
             <button
-              onClick={() => onStart(shuffle(wrongShortcuts), `오답 노트 (${wrongShortcuts.length}개)`)}
-              className="w-full p-5 rounded-2xl text-left transition-all hover:-translate-y-0.5 flex items-center justify-between group"
-              style={{ background: 'linear-gradient(135deg, rgba(239,68,68,0.07), rgba(220,38,38,0.04))', border: '1.5px solid rgba(239,68,68,0.2)', boxShadow: '0 2px 16px rgba(239,68,68,0.06)' }}>
-              <div>
-                <div className="font-bold text-gray-900 text-lg">📝 오답 노트</div>
-                <div className="text-sm text-gray-500 mt-0.5">이전에 틀린 {wrongShortcuts.length}개 단축키 집중 연습</div>
-              </div>
-              <span className="text-red-300 text-xl group-hover:translate-x-1 transition-transform">→</span>
-            </button>
+              onClick={() => setSearch('')}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 transition-colors text-sm"
+            >✕</button>
           )}
-
-          {/* 랜덤 학습 */}
-          <div className="grid grid-cols-3 gap-2">
-            {[10, 20, 30].map((n) => (
-              <button
-                key={n}
-                onClick={() => onStart(shuffle(SHORTCUTS).slice(0, n), `랜덤 ${n}개`)}
-                className="py-4 rounded-xl flex flex-col items-center gap-1 transition-all hover:-translate-y-0.5"
-                style={{ background: 'white', border: '1.5px solid #ebebeb', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#bfdbfe'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(37,99,235,0.08)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#ebebeb'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}
-              >
-                <span className="text-xl">🎲</span>
-                <span className="text-sm font-bold text-gray-900">{n}개</span>
-                <span className="text-xs text-gray-400">랜덤</span>
-              </button>
-            ))}
-          </div>
         </div>
 
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">카테고리별 학습</p>
-        <div className="flex flex-col gap-2.5">
-          {nonAll.map((cat) => {
-            const items = SHORTCUTS.filter((s) => s.category === cat);
-            const interactive = items.filter((s) => !s.browserBlocked).length;
-            const allBlocked = interactive === 0;
-            const meta = CATEGORY_META[cat] ?? { emoji: '📌', desc: '' };
-            return (
-              <button key={cat} onClick={() => onStart(items, cat)}
-                className="w-full p-4 rounded-xl text-left transition-all duration-150 flex items-center justify-between group"
-                style={{ background: 'white', border: '1.5px solid #ebebeb', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = allBlocked ? '#fde68a' : '#bfdbfe'; e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = allBlocked ? '0 4px 16px rgba(245,158,11,0.08)' : '0 4px 16px rgba(37,99,235,0.08)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#ebebeb'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}>
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0"
-                    style={{ background: allBlocked ? 'rgba(245,158,11,0.08)' : 'rgba(37,99,235,0.07)' }}>
-                    {meta.emoji}
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900">{cat}</div>
-                    <div className="text-xs text-gray-400 mt-0.5">
-                      {meta.desc} · {items.length}개
-                      {allBlocked && <span style={{ color: '#f59e0b' }}> · 브라우저에서 입력 불가</span>}
-                      {!allBlocked && interactive < items.length && (
-                        <span style={{ color: '#9ca3af' }}> ({interactive}개 연습 가능)</span>
-                      )}
+        {/* 검색 결과 */}
+        {searchResults ? (
+          <div>
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+              검색 결과 ({searchResults.length}개)
+            </p>
+            {searchResults.length === 0 ? (
+              <p className="text-gray-400 text-sm text-center py-10">검색 결과가 없어요</p>
+            ) : (
+              <>
+                <div className="flex flex-col gap-2 mb-4">
+                  {searchResults.map((s) => (
+                    <div key={s.id} className="flex items-center justify-between px-4 py-3 rounded-xl"
+                      style={{ background: 'white', border: '1.5px solid #ebebeb', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl">{s.emoji}</span>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-800">{s.description}</p>
+                          <p className="text-xs text-gray-400">{s.category}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {masteredIds.has(s.id) && <span className="text-xs text-green-500 font-bold">✓</span>}
+                        {favoriteIds.has(s.id) && <span className="text-xs text-pink-400">♥</span>}
+                        <ShortcutKeys display={s.display} size="sm" />
+                      </div>
                     </div>
+                  ))}
+                </div>
+                <button
+                  onClick={() => onStart(searchResults, `검색: "${search}"`)}
+                  className="w-full py-3 rounded-xl font-semibold text-white transition-all hover:-translate-y-0.5"
+                  style={{ background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', boxShadow: '0 3px 12px rgba(37,99,235,0.3)' }}
+                >
+                  검색 결과 {searchResults.length}개 학습하기
+                </button>
+              </>
+            )}
+          </div>
+        ) : (
+          <>
+            {/* 전체 + 오답 노트 + 즐겨찾기 + 랜덤 */}
+            <div className="mb-6 flex flex-col gap-2.5">
+              <button onClick={() => onStart(SHORTCUTS, '전체')}
+                className="w-full p-5 rounded-2xl text-left transition-all hover:-translate-y-0.5 flex items-center justify-between group"
+                style={{ background: 'linear-gradient(135deg, rgba(37,99,235,0.07), rgba(79,70,229,0.04))', border: '1.5px solid rgba(37,99,235,0.18)', boxShadow: '0 2px 16px rgba(37,99,235,0.08)' }}>
+                <div>
+                  <div className="font-bold text-gray-900 text-lg">⚡ 전체 학습</div>
+                  <div className="text-sm text-gray-500 mt-0.5">
+                    모든 {SHORTCUTS.length}개 단축키 · 각 {REPS}회 입력
+                    {masteredIds.size > 0 && (
+                      <span className="ml-2 text-green-500 font-semibold">{masteredIds.size}/{SHORTCUTS.length} 완료</span>
+                    )}
                   </div>
                 </div>
-                <span className={`text-lg transition-colors ${allBlocked ? 'text-amber-300 group-hover:text-amber-400' : 'text-gray-300 group-hover:text-blue-400'}`}>→</span>
+                <span className="text-blue-400 text-xl group-hover:translate-x-1 transition-transform">→</span>
               </button>
-            );
-          })}
-        </div>
+
+              {wrongShortcuts.length > 0 && (
+                <button
+                  onClick={() => onStart(shuffle(wrongShortcuts), `오답 노트 (${wrongShortcuts.length}개)`)}
+                  className="w-full p-5 rounded-2xl text-left transition-all hover:-translate-y-0.5 flex items-center justify-between group"
+                  style={{ background: 'linear-gradient(135deg, rgba(239,68,68,0.07), rgba(220,38,38,0.04))', border: '1.5px solid rgba(239,68,68,0.2)', boxShadow: '0 2px 16px rgba(239,68,68,0.06)' }}>
+                  <div>
+                    <div className="font-bold text-gray-900 text-lg">📝 오답 노트</div>
+                    <div className="text-sm text-gray-500 mt-0.5">이전에 틀린 {wrongShortcuts.length}개 단축키 집중 연습</div>
+                  </div>
+                  <span className="text-red-300 text-xl group-hover:translate-x-1 transition-transform">→</span>
+                </button>
+              )}
+
+              {favoriteShortcuts.length > 0 && (
+                <button
+                  onClick={() => onStart(favoriteShortcuts, `즐겨찾기 (${favoriteShortcuts.length}개)`)}
+                  className="w-full p-5 rounded-2xl text-left transition-all hover:-translate-y-0.5 flex items-center justify-between group"
+                  style={{ background: 'linear-gradient(135deg, rgba(236,72,153,0.06), rgba(251,113,133,0.04))', border: '1.5px solid rgba(251,113,133,0.25)', boxShadow: '0 2px 16px rgba(236,72,153,0.06)' }}>
+                  <div>
+                    <div className="font-bold text-gray-900 text-lg">♥ 즐겨찾기</div>
+                    <div className="text-sm text-gray-500 mt-0.5">북마크한 {favoriteShortcuts.length}개 단축키</div>
+                  </div>
+                  <span className="text-pink-300 text-xl group-hover:translate-x-1 transition-transform">→</span>
+                </button>
+              )}
+
+              <div className="grid grid-cols-3 gap-2">
+                {[10, 20, 30].map((n) => (
+                  <button
+                    key={n}
+                    onClick={() => onStart(shuffle(SHORTCUTS).slice(0, n), `랜덤 ${n}개`)}
+                    className="py-4 rounded-xl flex flex-col items-center gap-1 transition-all hover:-translate-y-0.5"
+                    style={{ background: 'white', border: '1.5px solid #ebebeb', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#bfdbfe'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(37,99,235,0.08)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#ebebeb'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}
+                  >
+                    <span className="text-xl">🎲</span>
+                    <span className="text-sm font-bold text-gray-900">{n}개</span>
+                    <span className="text-xs text-gray-400">랜덤</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">카테고리별 학습</p>
+            <div className="flex flex-col gap-2.5">
+              {nonAll.map((cat) => {
+                const items = SHORTCUTS.filter((s) => s.category === cat);
+                const interactive = items.filter((s) => !s.browserBlocked).length;
+                const allBlocked = interactive === 0;
+                const meta = CATEGORY_META[cat] ?? { emoji: '📌', desc: '' };
+                const masteredInCat = items.filter((s) => masteredIds.has(s.id)).length;
+                return (
+                  <button key={cat} onClick={() => onStart(items, cat)}
+                    className="w-full p-4 rounded-xl text-left transition-all duration-150 flex items-center justify-between group"
+                    style={{ background: 'white', border: '1.5px solid #ebebeb', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = allBlocked ? '#fde68a' : '#bfdbfe'; e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = allBlocked ? '0 4px 16px rgba(245,158,11,0.08)' : '0 4px 16px rgba(37,99,235,0.08)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#ebebeb'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}>
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0"
+                        style={{ background: allBlocked ? 'rgba(245,158,11,0.08)' : 'rgba(37,99,235,0.07)' }}>
+                        {meta.emoji}
+                      </div>
+                      <div>
+                        <div className="font-semibold text-gray-900">{cat}</div>
+                        <div className="text-xs text-gray-400 mt-0.5">
+                          {meta.desc} · {items.length}개
+                          {allBlocked && <span style={{ color: '#f59e0b' }}> · 브라우저에서 입력 불가</span>}
+                          {!allBlocked && interactive < items.length && (
+                            <span style={{ color: '#9ca3af' }}> ({interactive}개 연습 가능)</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      {masteredInCat > 0 && (
+                        <div className="text-right">
+                          <div className="text-xs font-bold text-green-500">{masteredInCat}/{items.length}</div>
+                          <div className="w-12 h-1.5 rounded-full mt-0.5 overflow-hidden" style={{ background: '#e5e7eb' }}>
+                            <div className="h-full rounded-full" style={{ width: `${(masteredInCat / items.length) * 100}%`, background: '#22c55e' }} />
+                          </div>
+                        </div>
+                      )}
+                      <span className={`text-lg transition-colors ${allBlocked ? 'text-amber-300 group-hover:text-amber-400' : 'text-gray-300 group-hover:text-blue-400'}`}>→</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -390,6 +523,7 @@ function LearnSession({ shortcuts, category, onComplete, onExit }) {
   const [reps, setReps] = useState(0);
   const [feedback, setFeedback] = useState(null);
   const [cardKey, setCardKey] = useState(0);
+  const [favoriteIds, setFavoriteIds] = useState(() => getFavoriteIds());
   const errorsRef = useRef({});
 
   const current = shortcuts[currentIndex];
@@ -462,12 +596,21 @@ function LearnSession({ shortcuts, category, onComplete, onExit }) {
         <div key={cardKey} className="w-full max-w-md animate-slide-in-up flex flex-col items-center gap-5">
 
           {/* 단축키 카드 */}
-          <div className="w-full rounded-3xl p-8 text-center transition-all duration-200"
+          <div className="w-full rounded-3xl p-8 text-center transition-all duration-200 relative"
             style={{
               background: isDone ? 'linear-gradient(135deg,#f0fdf4,#dcfce7)' : feedback?.type === 'incorrect' ? 'linear-gradient(135deg,#fff5f5,#fee2e2)' : 'white',
               border: `2px solid ${isDone ? '#86efac' : feedback?.type === 'incorrect' ? '#fca5a5' : '#ebebeb'}`,
               boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
             }}>
+            {/* 즐겨찾기 버튼 */}
+            <button
+              onClick={() => { toggleFavorite(current.id); setFavoriteIds(getFavoriteIds()); }}
+              className="absolute top-4 right-4 text-2xl transition-all hover:scale-125 active:scale-95"
+              style={{ color: favoriteIds.has(current.id) ? '#ef4444' : '#d1d5db', lineHeight: 1 }}
+              title={favoriteIds.has(current.id) ? '즐겨찾기 해제' : '즐겨찾기 추가'}
+            >
+              {favoriteIds.has(current.id) ? '♥' : '♡'}
+            </button>
             <div className="text-5xl mb-3">{current.emoji}</div>
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{current.category}</p>
             <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight mb-5">{current.description}</h2>
@@ -531,6 +674,7 @@ function LearnResult({ category, results, onRetry, onHome }) {
       mistakes.map((r) => r.shortcut.id),
       perfect.map((r) => r.shortcut.id),
     );
+    if (perfect.length > 0) updateMastered(perfect.map((r) => r.shortcut.id));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const grade =
