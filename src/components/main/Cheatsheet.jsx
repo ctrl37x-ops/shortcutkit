@@ -113,7 +113,7 @@ export default function Cheatsheet() {
             <Link href="/learn" className="text-sm" style={{ color: 'var(--sk-text-3)' }}>학습하기</Link>
             <Link href="/practice"
               className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white"
-              style={{ background: '#1a1a1a' }}>연습하기</Link>
+              style={{ background: '#1a1a1a' }}>도전하기</Link>
           </nav>
         </div>
       </header>

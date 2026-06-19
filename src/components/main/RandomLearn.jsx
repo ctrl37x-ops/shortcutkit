@@ -70,7 +70,7 @@ export default function RandomLearn() {
               className="px-4 py-1.5 rounded-lg text-sm font-semibold text-white transition-all hover:-translate-y-px"
               style={{ background: '#1a1a1a', boxShadow: '0 1px 4px rgba(0,0,0,0.2)' }}
             >
-              연습하기
+              도전하기
             </Link>
           </nav>
         </div>

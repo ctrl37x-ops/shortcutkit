@@ -271,7 +271,7 @@ export default function ShortcutGame() {
           <div className="w-full max-w-md text-center flex flex-col items-center gap-8">
             <div>
               <div className="text-7xl mb-5">⌨️</div>
-              <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--sk-text)' }}>연습하기</h1>
+              <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--sk-text)' }}>도전하기</h1>
               <p className="text-sm leading-relaxed" style={{ color: 'var(--sk-text-3)' }}>
                 동작 설명이 나오면 해당 단축키를 실제로 눌러보세요
               </p>

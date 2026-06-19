@@ -320,7 +320,7 @@ function LearnHome({ onStart }) {
             <Link href="/practice"
               className="px-4 py-1.5 rounded-lg text-sm font-semibold text-white transition-all hover:-translate-y-px"
               style={{ background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', boxShadow: '0 2px 10px rgba(37,99,235,0.3)' }}>
-              연습하기 →
+              도전하기 →
             </Link>
           </nav>
         </div>
@@ -848,7 +848,7 @@ function LearnResult({ category, results, onRetry, onHome }) {
               <Link href="/practice"
                 className="flex-1 py-3 rounded-xl font-semibold text-white text-center transition-all hover:-translate-y-0.5"
                 style={{ background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', boxShadow: '0 3px 12px rgba(37,99,235,0.3)' }}>
-                연습하기 →
+                도전하기 →
               </Link>
             </div>
           </div>
