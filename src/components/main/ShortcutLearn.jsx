@@ -636,9 +636,13 @@ function LearnResult({ category, results, onRetry, onHome }) {
 
 // ── 메인 ─────────────────────────────────────────────────────────────────
 
-export default function ShortcutLearn() {
-  const [screen, setScreen] = useState('home');
-  const [sessionConfig, setSessionConfig] = useState(null);
+// defaultShortcuts/defaultCategory: 랜덤 학습에서 바로 세션 시작할 때 주입
+// onExitToRoot: 세션 종료/홈 버튼 클릭 시 외부 페이지로 빠져나갈 콜백
+export default function ShortcutLearn({ defaultShortcuts = null, defaultCategory = null, onExitToRoot = null }) {
+  const [screen, setScreen] = useState(defaultShortcuts ? 'session' : 'home');
+  const [sessionConfig, setSessionConfig] = useState(
+    defaultShortcuts ? { shortcuts: defaultShortcuts, category: defaultCategory ?? '랜덤' } : null
+  );
   const [sessionResults, setSessionResults] = useState([]);
 
   const handleStart = (shortcuts, category) => {
@@ -646,11 +650,16 @@ export default function ShortcutLearn() {
     setScreen('session');
   };
 
+  const handleExit = () => {
+    if (onExitToRoot) onExitToRoot();
+    else setScreen('home');
+  };
+
   if (screen === 'session') {
     return (
       <LearnSession {...sessionConfig}
         onComplete={(results) => { setSessionResults(results); setScreen('result'); }}
-        onExit={() => setScreen('home')} />
+        onExit={handleExit} />
     );
   }
 
@@ -658,7 +667,7 @@ export default function ShortcutLearn() {
     return (
       <LearnResult category={sessionConfig?.category} results={sessionResults}
         onRetry={(shortcuts) => handleStart(shortcuts, '재연습')}
-        onHome={() => setScreen('home')} />
+        onHome={handleExit} />
     );
   }
 

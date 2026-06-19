@@ -146,13 +146,19 @@ export default function HomePage() {
 
       {/* ── 기능 카드 ──────────────────────────────────────── */}
       <section className="px-6 pb-28">
-        <div className="max-w-3xl mx-auto grid sm:grid-cols-2 gap-4">
+        <div className="max-w-3xl mx-auto grid sm:grid-cols-3 gap-4">
           {[
             {
               href: '/learn',
               icon: '📖',
               title: '학습하기',
               desc: '카드를 탭해 단축키를 확인하고, 외운 것을 체크하며 진행도를 관리해요',
+            },
+            {
+              href: '/random',
+              icon: '🎲',
+              title: '랜덤 학습',
+              desc: '카테고리 없이 랜덤으로 단축키를 골라 바로 학습해요',
             },
             {
               href: '/practice',
