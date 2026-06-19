@@ -80,6 +80,22 @@ function ShortcutKeys({ display, size = 'md' }) {
   );
 }
 
+// browserBlocked 단축키 선택 UI에서 쓰는 키 버튼
+function KeySelectBtn({ label, keyVal, selectedKey, onSelect }) {
+  const on = selectedKey === keyVal;
+  return (
+    <button
+      onClick={() => onSelect(on ? null : keyVal)}
+      className="h-9 min-w-[2rem] px-2 rounded-lg text-xs font-semibold transition-all"
+      style={on
+        ? { background: '#2563eb', color: 'white', boxShadow: '0 2px 6px rgba(37,99,235,0.4)' }
+        : { background: 'var(--sk-bg)', border: '1.5px solid var(--sk-border)', color: 'var(--sk-text-2)' }}
+    >
+      {label}
+    </button>
+  );
+}
+
 // 한국어 키보드에서 ₩ → ` 정규화
 function normalizeKey(key) {
   return key === '₩' ? '`' : key;
@@ -543,6 +559,25 @@ function RepDots({ filled }) {
 
 // ── 세션 화면 ────────────────────────────────────────────────────────────
 
+const MOD_KEYS = [
+  { id: 'meta', label: '⌘' },
+  { id: 'ctrl', label: '⌃' },
+  { id: 'alt',  label: '⌥' },
+  { id: 'shift',label: '⇧' },
+];
+const SELECT_KEY_ROWS = [
+  ['1','2','3','4','5','6','7','8','9','0','`'],
+  ['q','w','e','r','t','y','u','i','o','p'],
+  ['a','s','d','f','g','h','j','k','l'],
+  ['z','x','c','v','b','n','m'],
+];
+const SPECIAL_KEYS = [
+  { label:'Tab', val:'tab' }, { label:'Space', val:' ' }, { label:'Esc', val:'escape' },
+  { label:'↑', val:'arrowup' }, { label:'↓', val:'arrowdown' },
+  { label:'←', val:'arrowleft' }, { label:'→', val:'arrowright' },
+  { label:'{', val:'{' }, { label:'}', val:'}' },
+];
+
 function LearnSession({ shortcuts, category, onComplete, onExit }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [reps, setReps] = useState(0);
@@ -550,6 +585,8 @@ function LearnSession({ shortcuts, category, onComplete, onExit }) {
   const [cardKey, setCardKey] = useState(0);
   const [favoriteIds, setFavoriteIds] = useState(() => getFavoriteIds());
   const [koreanWarning, setKoreanWarning] = useState(false);
+  const [selectedMods, setSelectedMods] = useState(new Set());
+  const [selectedKey, setSelectedKey] = useState(null);
   const errorsRef = useRef({});
 
   const current = shortcuts[currentIndex];
@@ -566,6 +603,42 @@ function LearnSession({ shortcuts, category, onComplete, onExit }) {
       setCardKey((k) => k + 1);
     }
   }, [currentIndex, shortcuts, onComplete]);
+
+  // 카드 전환 시 선택 상태 초기화
+  useEffect(() => {
+    setSelectedMods(new Set());
+    setSelectedKey(null);
+  }, [cardKey]);
+
+  const toggleMod = (id) => setSelectedMods((prev) => {
+    const next = new Set(prev);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    return next;
+  });
+
+  const handleConfirm = () => {
+    if (!selectedKey || feedback) return;
+    const norm = (k) => k.toLowerCase();
+    const isCorrect =
+      selectedMods.has('meta')  === current.keys.meta &&
+      selectedMods.has('shift') === current.keys.shift &&
+      selectedMods.has('alt')   === current.keys.alt &&
+      selectedMods.has('ctrl')  === current.keys.ctrl &&
+      norm(selectedKey) === norm(current.keys.key);
+
+    if (isCorrect) {
+      setFeedback({ type: 'correct', pressedDisplay: '(선택)' });
+      setTimeout(() => goNext(), 700);
+    } else {
+      errorsRef.current[current.id] = (errorsRef.current[current.id] ?? 0) + 1;
+      setFeedback({ type: 'incorrect', pressedDisplay: '(선택)' });
+      setTimeout(() => {
+        setFeedback(null);
+        setSelectedMods(new Set());
+        setSelectedKey(null);
+      }, 2000);
+    }
+  };
 
   const handleKeyDown = useCallback((e) => {
     // 메타/컨트롤 조합은 기본 동작 항상 차단 (⌘R 리로드 등 방지)
@@ -662,11 +735,21 @@ function LearnSession({ shortcuts, category, onComplete, onExit }) {
           <div className="h-7 flex items-center justify-center">
             {current.browserBlocked ? (
               feedback?.type === 'correct' ? (
-                <p className="text-green-500 font-semibold text-sm">✓ 알고 계시는군요!</p>
+                <p className="text-green-500 font-semibold text-sm">✓ 정확해요!</p>
               ) : feedback?.type === 'incorrect' ? (
-                <p className="text-red-400 font-semibold text-sm">✗ 키 위치를 확인해봐요</p>
+                <p className="text-red-400 font-semibold text-sm">✗ 틀렸어요 — 정답을 확인해봐요</p>
+              ) : (selectedMods.size > 0 || selectedKey) ? (
+                <p className="text-sm font-semibold" style={{ color: 'var(--sk-text-3)' }}>
+                  선택 중: {[
+                    selectedMods.has('meta') && '⌘',
+                    selectedMods.has('ctrl') && '⌃',
+                    selectedMods.has('alt') && '⌥',
+                    selectedMods.has('shift') && '⇧',
+                    selectedKey && selectedKey.toUpperCase(),
+                  ].filter(Boolean).join('')}
+                </p>
               ) : (
-                <p className="text-amber-500 text-xs font-medium">⌨️ 이 단축키를 알고 계신가요?</p>
+                <p className="text-xs font-medium" style={{ color: 'var(--sk-text-4)' }}>수정자 키와 단축키를 조합해보세요</p>
               )
             ) : isDone ? (
               <p className="text-green-600 font-bold text-sm">✓ 완료! 다음으로 이동 중…</p>
@@ -691,29 +774,49 @@ function LearnSession({ shortcuts, category, onComplete, onExit }) {
             </div>
           )}
 
-          {/* 인식 확인 버튼 (browserBlocked 전용) */}
+          {/* 키 조합 선택 UI (browserBlocked 전용) */}
           {current.browserBlocked && !feedback && (
-            <div className="flex gap-3">
+            <div className="w-full flex flex-col gap-2">
+              {/* 수정자 키 */}
+              <div className="flex gap-2 justify-center">
+                {MOD_KEYS.map(({ id, label }) => (
+                  <button key={id} onClick={() => toggleMod(id)}
+                    className="w-12 h-9 rounded-xl font-bold text-sm transition-all"
+                    style={selectedMods.has(id)
+                      ? { background: '#2563eb', color: 'white', boxShadow: '0 2px 8px rgba(37,99,235,0.4)' }
+                      : { background: 'var(--sk-bg)', border: '1.5px solid var(--sk-border)', color: 'var(--sk-text-3)' }}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              {/* 알파벳 키 (QWERTY 배열) */}
+              <div className="flex flex-col gap-1">
+                {SELECT_KEY_ROWS.map((row, ri) => (
+                  <div key={ri} className="flex gap-1 justify-center flex-wrap">
+                    {row.map((k) => (
+                      <KeySelectBtn key={k} label={k.toUpperCase()} keyVal={k} selectedKey={selectedKey} onSelect={setSelectedKey} />
+                    ))}
+                  </div>
+                ))}
+                {/* 특수 키 */}
+                <div className="flex gap-1 justify-center flex-wrap">
+                  {SPECIAL_KEYS.map(({ label, val }) => (
+                    <KeySelectBtn key={val} label={label} keyVal={val} selectedKey={selectedKey} onSelect={setSelectedKey} />
+                  ))}
+                </div>
+              </div>
+
+              {/* 확인 버튼 */}
               <button
-                onClick={() => {
-                  setFeedback({ type: 'correct', pressedDisplay: '(인식)' });
-                  setTimeout(goNext, 700);
-                }}
-                className="px-6 py-2.5 rounded-xl font-semibold text-white text-sm transition-all hover:-translate-y-0.5"
-                style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)', boxShadow: '0 2px 8px rgba(34,197,94,0.3)' }}
+                onClick={handleConfirm}
+                disabled={!selectedKey}
+                className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all hover:-translate-y-0.5"
+                style={selectedKey
+                  ? { background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: 'white', boxShadow: '0 3px 12px rgba(37,99,235,0.3)' }
+                  : { background: 'var(--sk-border)', color: 'var(--sk-text-4)' }}
               >
-                ✓ 알고 있어요
-              </button>
-              <button
-                onClick={() => {
-                  errorsRef.current[current.id] = (errorsRef.current[current.id] ?? 0) + 1;
-                  setFeedback({ type: 'incorrect', pressedDisplay: '(인식)' });
-                  setTimeout(() => setFeedback(null), 1900);
-                }}
-                className="px-6 py-2.5 rounded-xl font-semibold text-white text-sm transition-all hover:-translate-y-0.5"
-                style={{ background: 'linear-gradient(135deg, #ef4444, #dc2626)', boxShadow: '0 2px 8px rgba(239,68,68,0.3)' }}
-              >
-                ✗ 모르겠어요
+                확인 →
               </button>
             </div>
           )}
